@@ -1,0 +1,297 @@
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","6998","static/chunks/6998-1b0acbbb998b723b.js","1357","static/chunks/1357-ac6cfe09a72eebb2.js","2391","static/chunks/2391-59137921871908e0.js","9675","static/chunks/9675-d1ff713a45233020.js","4811","static/chunks/4811-bfd44fe260330afe.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-5f0c2aba80ec7f49.js","6936","static/chunks/6936-e87287636f2de846.js","6893","static/chunks/6893-2650ad2f61bfdfd2.js","121","static/chunks/app/docs/%5Bslug%5D/page-7caf6a74abed9be1.js"],"DocsView"]
+4:I[827716125,[],""]
+6:I[463262791,[],""]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","9675","static/chunks/9675-d1ff713a45233020.js","4811","static/chunks/4811-bfd44fe260330afe.js","3185","static/chunks/app/layout-ca1e14b7317f85da.js"],"Providers"]
+9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","9675","static/chunks/9675-d1ff713a45233020.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","7601","static/chunks/app/error-f5e3a347e59bf6fd.js"],"default"]
+b:I[78629786,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","6998","static/chunks/6998-1b0acbbb998b723b.js","1357","static/chunks/1357-ac6cfe09a72eebb2.js","2391","static/chunks/2391-59137921871908e0.js","9675","static/chunks/9675-d1ff713a45233020.js","4811","static/chunks/4811-bfd44fe260330afe.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-5f0c2aba80ec7f49.js","9160","static/chunks/app/not-found-fc9bfe98aa99ec0b.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","6998","static/chunks/6998-1b0acbbb998b723b.js","1357","static/chunks/1357-ac6cfe09a72eebb2.js","2391","static/chunks/2391-59137921871908e0.js","9675","static/chunks/9675-d1ff713a45233020.js","4811","static/chunks/4811-bfd44fe260330afe.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-5f0c2aba80ec7f49.js","9160","static/chunks/app/not-found-fc9bfe98aa99ec0b.js"],""]
+3:T2b45,One command turns a Linux machine with Docker (a server, a PC, or a NAS you can SSH into) into storage that your repositories push to. Pushes then cost only the small Platform writes, and nobody bills you for storage.
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/PastaPastaPasta/dash-forge/master/backend.sh | sudo sh
+```
+
+At the end it prints the exact `dg` commands to connect it. Read [the script](../../backend.sh) before you pipe it to a shell; it is written to be read.
+
+On a Mac or a Windows PC, use [`dg ipfs up`](run-your-own-ipfs-node.md) instead. It sets up the same kind of node for your user.
+
+1. [What you get](#what-you-get)
+2. [Connect dg](#connect-dg)
+3. [An https address and the web app](#an-https-address-and-the-web-app)
+4. [Being reachable](#being-reachable)
+5. [Day to day](#day-to-day)
+6. [What it lets in](#what-it-lets-in)
+7. [Troubleshooting](#troubleshooting)
+
+---
+
+## What you get
+
+Two containers, both on the host's network, so IPv4 and IPv6 both work:
+
+| | What it does | Required |
+|---|---|---|
+| **kubo** (IPFS, 0.43.1) | Stores your packs, pinned. It tells the IPFS network it has them, so the public gateways that Forge readers use can fetch them from your node. It gets a `libp2p.direct` certificate (AutoTLS), so browsers can dial it over secure WebSockets. Its own API and gateway listen on loopback only. | yes |
+| **Caddy** (2.11.7) | The only HTTP way in. Port 5001 is the push API and port 8080 is the read gateway, both for clients on private networks. With `--domain`, Caddy also serves both at `https://<domain>` with a Let's Encrypt certificate. | yes |
+
+Why IPFS: a push records a content address (`ipfs://<cid>`) on Platform, not your machine's address. Any IPFS gateway can serve those bytes, and every reader checks them against the SHA-256 recorded on Platform. So a node with no domain name works. An https name (`--domain`) is optional: it lets the web app use the node, and gives readers your own gateway to try first.
+
+Not included: the [git-over-HTTPS gateway](../hosting/forge-gateway.md), which lets plain `git clone https://…` work without `git-remote-dash`. Repositories don't need it.
+
+The command does this, and is safe to run again:
+
+1. Installs Docker with Docker's own script if Docker is missing and it runs as root. Otherwise it asks you to install it.
+2. Writes everything into `~/forge-backend`, owned by the user who ran `sudo` (or `/opt/forge-backend` when run as root directly):
+
+   | File | What it is |
+   |---|---|
+   | `compose.yaml`, `Caddyfile`, `init.d/` | Generated on every run from your settings |
+   | `settings.env` | Your settings, no secrets. A re-run without options keeps them |
+   | `secrets.env` | kubo's two tokens, mode 0600 |
+   | `forge-auth` | `Bearer <token>`, the value `dg` needs, mode 0600. It is never printed |
+   | `ipfs/`, `caddy/` | The node's data, and Caddy's certificates |
+
+3. Pulls the two images, pinned by digest, and starts them. They restart after a reboot.
+4. If `ufw` is active, opens the swarm port (TCP and UDP 4001) to everyone, ports 5001 and 8080 to private networks, and with `--domain` ports 80 and 443. `ufw` is the only firewall it configures: open the same ports in any other.
+5. Checks the node through its public ports. A call without the token must be refused, a non-Forge call must be refused, and a test file must go in, come back out of the gateway, and be unpinned.
+6. Prints the addresses, the peer id, whether it is reachable, and what to run next.
+
+A second run keeps the tokens and the data. It rewrites the files and restarts the containers only if something changed.
+
+### Options
+
+Pass options after `sh -s --`, for example `… | sudo sh -s -- --domain ipfs.example.org`.
+
+| Option | What it does |
+|---|---|
+| `--domain <host>` | Also serve `https://<host>`. Its DNS must point at this machine, and ports 80 and 443 must reach it. `--domain none` removes it. |
+| `--email <addr>` | Contact address for Let's Encrypt. |
+| `--origin <https://host>` | Allow another Forge web app to use the node. `https://forge.dashhq.org` and `https://testnet-forge.dashhq.org` are always allowed. Repeat it for more; `--origin none` forgets the extra ones. |
+| `--api-port`, `--gateway-port`, `--swarm-port` | Change 5001, 8080 or 4001. |
+| `--listen all\|local` | Who may use the plain-http ports 5001 and 8080: clients with private addresses (`all`, the default), or this machine only (`local`). A client with a public address gets 403, so the token never crosses the internet in clear text. From outside your network, use `--domain`. |
+| `--rotate-token` | Replace the Forge token. Connect `dg` again afterwards. |
+| `--dir <path>` | Keep everything somewhere else: a new or empty directory. |
+| `--no-start` | Write the files, start nothing. |
+
+## Connect dg
+
+The script prints these lines with your own addresses filled in. Run them on the computer you push from:
+
+```sh
+export FORGE_BACKEND_AUTH="$(ssh you@192.168.1.20 cat /home/you/forge-backend/forge-auth)"
+dg storage add forge-backend --kind ipfs-kubo --api http://192.168.1.20:5001 --gateway http://192.168.1.20:8080 --api-auth env:FORGE_BACKEND_AUTH
+dg storage test forge-backend && dg storage use forge-backend --global
+```
+
+```
+  [ OK ] kubo api       kubo 0.43.1 at http://192.168.1.20:5001
+  [ OK ] add + pin      ipfs://bafkrei… (CIDv1 raw-leaves, matches the local derivation, pinned)
+  [ OK ] gateway        GET http://192.168.1.20:8080/ipfs/bafkrei… OK
+  [ OK ] shared gateway https://ipfs.filebase.io fetched the probe from this node (no public_gateway is set)
+```
+
+`FORGE_BACKEND_AUTH` must be set wherever you push: the profile stores only its name, never the token.
+
+Your next `git push` or `dg init` stores its packs on the node:
+
+```
+dash: storage      → forge-backend · Platform stores manifest + refs only, est 0.0077 DASH
+dash: forge-backend ████████████████ 301.3 KiB  verified   0.1 s
+```
+
+Anyone can then clone the repository. `git-remote-dash` reads the packs through public IPFS gateways, which fetch them from your node.
+
+## An https address and the web app
+
+With a host name whose DNS (A and/or AAAA record) points at the machine, and ports 80 and 443 open to it:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/PastaPastaPasta/dash-forge/master/backend.sh | sudo sh -s -- --domain ipfs.example.org
+```
+
+```
+  [ OK ] https://ipfs.example.org serves it with a valid certificate
+```
+
+`dg` then uses `https://ipfs.example.org` for the API and the gateway, from anywhere. Pushes also record it as the repository's public gateway, which readers try first. The printed `dg storage add` line includes `--public-gateway`.
+
+In the web app, open **Settings → Storage → IPFS (kubo) → Set it up by hand**. Enter `https://ipfs.example.org` as the kubo RPC API, the gateway and the public gateway, and paste the contents of `forge-auth` as the API Authorization header. The web app needs the https address: a page served over https can't call a plain-http node on your network.
+
+## Being reachable
+
+Other nodes and the public gateways must be able to dial your node to fetch from it. Forward TCP and UDP 4001 on your router to the machine. The script's output shows what the node found:
+
+```
+  Browser dialing  WSS with a libp2p.direct certificate (AutoTLS)
+  Public addresses ip4 203.0.113.7 ip6 2001:db8::7
+```
+
+If it says `none yet`, nobody outside your network can fetch from you: forward the port. If browser dialing says `not yet`, the certificate comes a few minutes after the node becomes reachable. Run the status command again later.
+
+Your bytes are safe on your disk either way. Keep a second copy elsewhere too (`dg storage use forge-backend,r2-main`, see [Bring your own storage](bring-your-own-storage.md#choosing-where-a-repo-pushes)): when this machine is off, packs stored only here can't be read.
+
+## Day to day
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/PastaPastaPasta/dash-forge/master/backend.sh | sudo sh -s -- status
+```
+
+shows the containers, the addresses, reachability, the bytes stored, and the connect commands again.
+
+| Command (after `sh -s --`) | What it does |
+|---|---|
+| *(none)* | Set up, update or repair. Safe to run again. |
+| `status` | What runs and how to connect. |
+| `down` | Stop both containers. Data, tokens and settings stay. Run the script again to start them. |
+| `--rotate-token` | A new Forge token. Update `FORGE_BACKEND_AUTH` and the web profile afterwards. |
+
+Run your own kubo commands with the owner token, inside the container: `cd ~/forge-backend && sudo docker compose exec kubo sh -c 'ipfs --api-auth "bearer:$OWNER_TOKEN" repo stat'`.
+
+To upgrade, run the command again: a newer script pins newer images. To remove everything, run `down`, then delete the directory.
+
+## What it lets in
+
+- **Plain http (5001 and 8080)** answers clients with private addresses only (loopback, 10/8, 172.16/12, 192.168/16, 100.64/10, link-local, and IPv6 ULA and link-local). Everyone else gets 403. The https name has no such limit.
+- **The push API (5001)** passes only the six calls Forge makes: `add`, `pin/add`, `pin/ls`, `pin/rm`, `id` and `version`, plus the browser's preflight (`OPTIONS`) from an allowed Forge address. Everything else is 404. kubo checks the token, which allows only those calls. A request without it is refused. The owner token, which can do everything, never leaves the machine.
+- **The gateway (8080)** answers `GET`, `HEAD` and `OPTIONS` for `/ipfs/<cid>`, only for content this node stores. It won't fetch other people's content through your connection.
+- **Browsers** may call the API only from the allowed Forge addresses.
+- **Tokens** are in `secrets.env` and `forge-auth`, mode 0600, never printed. The containers get them as environment variables, which `docker inspect` shows to anyone who can run Docker, and kubo's start-up and `status` pass them to `ipfs` commands inside the container, where root on the host can see them in the process list.
+
+## Troubleshooting
+
+| What you see | Fix |
+|---|---|
+| `this user cannot use Docker` | Run the same command with `sudo`. |
+| `Docker Compose is missing` | Install the Docker Compose plugin, then run the script again. |
+| `only private networks may use plain http here` (403) | You are calling the plain-http port from a public address. Use the https name (`--domain`), or an SSH tunnel. |
+| `TCP port 5001 is already in use` (or another port) | Stop what uses it, or choose other ports with `--api-port`, `--gateway-port` or `--swarm-port`. |
+| `--domain needs ports 80 and 443` | Free them, or run without `--domain`. |
+| `https://… did not answer from this machine` | Check that the name's DNS points at this machine and that ports 80 and 443 reach it. Read `sudo docker compose -p forge-backend logs caddy` in the directory. |
+| `the node did not answer within 3 minutes` | Read the logs it prints. |
+| `dg storage test` fails `kubo api` with 403 | The token is wrong or old. Fetch `forge-auth` again. |
+| `Public addresses none yet` | Forward TCP and UDP 4001 to the machine. |
+5:["slug","self-host-backend","d"]
+7:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();a:T1628,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["112bdd63f629b95f9dc1df42cc453af4c21dc0ac",[[["",{"children":["docs",{"children":[["slug","self-host-backend","d"],{"children":["__PAGE__?{\"slug\":\"self-host-backend\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","self-host-backend","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"self-host-backend","title":"Run your own backend","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/918338888f0e68d0.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This page doesn't exist. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","div",null,{"className":"mt-5 flex flex-wrap items-center justify-center gap-2.5","children":[["$","$Lc",null,{"href":"/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap bg-forge-700 text-white hover:bg-forge-800 dark:bg-forge-700 dark:hover:bg-forge-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Go home"}],["$","$Lc",null,{"href":"/explore/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap border border-anvil-300 bg-transparent text-anvil-800 hover:bg-anvil-100 dark:border-anvil-700 dark:text-anvil-100 dark:hover:bg-anvil-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Explore repos"}]]}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null
