@@ -1,0 +1,209 @@
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","6936","static/chunks/6936-e87287636f2de846.js","6893","static/chunks/6893-7d8c5169cf8fd88e.js","121","static/chunks/app/docs/%5Bslug%5D/page-fd33617315217982.js"],"DocsView"]
+4:I[827716125,[],""]
+6:I[463262791,[],""]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3185","static/chunks/app/layout-21ed0fc3fc9dcc5b.js"],"Providers"]
+9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6434","static/chunks/6434-c83bc61d331d581b.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7601","static/chunks/app/error-37a206d254351107.js"],"default"]
+b:I[369217361,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],""]
+3:T27ed,What Forge cannot hold or do, in numbers, with where each number comes from. Some are Dash Platform's and some are Forge's own rules. The ones marked **frozen** are fixed once a network's contracts are registered ([Deploying Forge to a network](deploying-to-a-network.md#7-after-registration-what-can-still-change)). If a push or a command fails, start with [My first push failed](guides/first-push-troubleshooting.md).
+
+1. [Sizes](#sizes)
+2. [Text and counts](#text-and-counts)
+3. [What the apps read](#what-the-apps-read)
+4. [Pushes and the cost guard](#pushes-and-the-cost-guard)
+5. [Not supported](#not-supported)
+
+## Sizes
+
+| What | Limit | Source |
+|---|---|---|
+| One state transition (a signed write) | **20,480 bytes** (20 KiB) | Platform's `max_state_transition_size`; `ST_SIZE_LIMIT` in `crates/forge-core/src/pack.rs` |
+| One byte-array field | 4,900 bytes (Platform's hard cap is 5,120; the rest is document overhead) | `FIELD_MAX` in `pack.rs` |
+| One `chunk` document (git pack bytes on Platform) | 3 fields, **14,700 bytes** of pack per chunk (about 14.4 KiB); a full chunk leaves at least 5 KiB for headers | `DOC_PAYLOAD_MAX` in `pack.rs` |
+| A pack | **1 TiB**: the cap on the size a manifest records (**frozen**). Forge's tools add no smaller cap; on Platform a pack is split over as many chunks as it needs, each costing about 0.005 DASH | [forge-v2.md §9](contracts/forge-v2.md#9-frozen-at-mainnet); [Costs](guides/costs.md) |
+| A contract (registration) | 20,480 bytes, and at least 2,000 bytes of headroom under that for the create transition | `deploy-v2.mjs` |
+| A passkey vault entry (`vaultEntry`) | credential id 16 to 255 bytes, recipient key 32, encapsulated key 32, sealed bundle 32 to 256 (Forge writes 256). An update can loosen the sealed bundle's bounds but never make it fixed-length, and cannot take the credential id past 255 bytes or `version` past 255 (**frozen**). One entry per identity and credential. Fees measured on testnet: about 43 to 52 million credits (about 0.0005 DASH) for an identity's first entry, 33 million for a later one, 3 million to re-seal; a delete refunds about 27 to 37 million, and a sign-in reads only | [forge-v2.md §2](contracts/forge-v2.md#forge-meta-mainnet-set-only) |
+| A board (`board`, forge-meta) | name 1 to 63 characters (252 bytes), definition 4,096 bytes of JSON, sealed 5,120 bytes; one definition per member and board. The board key stays a u32 and only maintainers and writers define boards (**frozen**); the size bounds can be loosened by an update. Fees measured on testnet: about 54 to 64 million credits for a new board with a template's definition, 3.4 to 4.6 million for an edit | [forge-v2.md §2](contracts/forge-v2.md#forge-meta-mainnet-set-only); [Boards](design/boards.md#8-limits) |
+| A card (`card`, forge-meta) | column 0 to 255, rank 1 to 63 base-62 digits, field values 2,048 bytes of JSON, sealed 2,560 bytes; one card per member, item and board. A card always names an issue or a PR, and only the board's home repository's members write one (**frozen**). Fees measured on testnet: about 71 million credits for an item's first card, 89 million for a board's first, 43 million when another member has a card for the item, 4 to 5 million for a move | same |
+| Keys in a passkey vault entry | at most **6**: the main key (a group-bound limited key with a budget and an expiry), up to 4 per-contract wallet grants (each also with a budget and an expiry: an unlimited one stays on its device) and one encryption key (only if asked). At most **10 passkeys** per identity | [Passkey vault](security/passkey-vault.md#what-an-entry-holds) |
+| Pack download time | each copy gets `max(120 s, size ÷ 1 MiB/s)`; a manifest with no size allows 256 MiB | [Bring your own storage](guides/bring-your-own-storage.md) |
+| Read-back check after an upload | a full download and SHA-256 up to 16 MiB; larger packs get a size check and byte-exact head and tail ranges | same |
+| A history or flat index, inflated | 64 MiB | `MAX_INFLATED` in `crates/forge-core/src/pack/historyindex.rs` and `flatindex.rs` |
+| One repack names at most | 32 older packs it supersedes; run it again for the next ones | [Bring your own storage](guides/bring-your-own-storage.md) |
+| A release asset uploaded from the browser | 256 MiB per file | [Collaborating](guides/collaborating.md#from-the-web-app) |
+| A branch downloaded as a zip | 100 MB, built in your browser | [Quick start](guides/quick-start.md#7-view-it-on-the-web) |
+
+## Text and counts
+
+| What | Limit | Source |
+|---|---|---|
+| An issue, comment or release-notes body | **5,120 bytes** on Platform (less in a private repository, where the title and other encrypted text share the space) | [Collaborating](guides/collaborating.md#issues) |
+| A longer text | up to **256 KiB**, posted by a maintainer or writer; the field keeps its first part and names an artifact. Triage, Read and non-members stay within 5,120 bytes | [forge-v2.md §6.3](contracts/forge-v2.md#63-long-bodies-a-text-longer-than-its-field-client-convention-p1-9) |
+| A members-only post | 5,120 bytes less 61 bytes of envelope; a bot's reply is cut to at most 4,800 | [private-repos.md §23](security/private-repos.md#23-bots-members-only-posts-enc-v0x05) |
+| An inline comment's diff hunk | 1,024 bytes (it can be raised by an update, never lowered) | [forge-v2.md §9](contracts/forge-v2.md#9-frozen-at-mainnet) |
+| A repository name | 1 to 63 characters: lowercase letters, digits, `.`, `_` and `-`, starting with a letter or digit ([E202](errors.md#e202)) | `docs/errors.md` |
+| Topics on a repository | 20, each 1 to 30 characters (**frozen**) | [Collaborating](guides/collaborating.md#repository-settings) |
+| Protected-branch patterns | 8 | same |
+| Required checks and their sources | 10 (**frozen**) | [forge-v2.md §9](contracts/forge-v2.md#9-frozen-at-mainnet) |
+| Reviewers asked from CODEOWNERS | 15 | [Collaborating](guides/collaborating.md#code-owners) |
+| People a message can go to | 16, you included (an environment: 64) | [Who can read what](security/audiences.md#send-a-message-to-specific-people) |
+| A bot's access note | 500 characters; the AI service's name 100; a task for a bot 120 | [Bots and agents](guides/bots.md) |
+| A bot's push access | at most 90 days (30 by default) | [Bots and agents](guides/bots.md#let-it-push) |
+| Names that differ only in case, or one the other as a folder (`feature` and `feature/x`) | refused for branches and tags | [Collaborating](guides/collaborating.md#pushing-branches) |
+
+## What the apps read
+
+The apps read documents in pages and stop at a limit rather than guess. A result past a limit is marked, never silently wrong.
+
+| What | Limit | Effect |
+|---|---|---|
+| A repository's member-event feed | **30 pages of 100: 3,000 events** (`FEED_MAX_PAGES` in `forge-web/lib/repo/issues.ts`) | Past it, label and assignee filters, pinned issues and milestone progress are shown as unverified. Hides, bans, labels, assignments and pins are events, so a very busy repository, or one that moderates a flood one post at a time, reaches it. Events cannot be deleted |
+| Pull requests in a search | the newest 100 | [Collaborating](guides/collaborating.md#searching-and-what-concerns-you) |
+| Code search | files over 384 KiB are skipped; at most 100 MiB of text; a repository over 2,000 files or 16 MiB stored is indexed on its default branch only | [Quick start](guides/quick-start.md#search-the-code) |
+| The history index | each path's newest 256 first-parent versions | [Costs](guides/costs.md#history-index) |
+
+## Pushes and the cost guard
+
+| What | Limit | Source |
+|---|---|---|
+| A push that costs more than | `dash.costWarnThreshold`, **0.05 DASH** by default, asks first; with no terminal it stops with [E801](errors.md#e801). The whole push counts, once, before anything is paid: every pack it stores and every ref update, deletes and tags at commits already stored too (`git push --tags` of 300 such tags costs about 0.28 DASH) | [Costs](guides/costs.md#seeing-costs-before-you-pay) |
+| Storing packs on Platform | a push that would store **more than 1 MiB** of packs in all while `dash.storage` is unset asks first (they are permanent); raising the threshold does not lift this, choosing storage does | [E801](errors.md#e801) |
+| The key's budget | a limited key spends at most its budget (0.25 DASH for `dg auth new`'s key, 0.05 for a browser key by default) ([E402](errors.md#e402)) | [Identity and keys](guides/identity-and-keys.md#limited-keys) |
+| Memory while indexing a fetched pack | none unless you set `dash.maxPackInput` (the gateway sets one) | [Gateway](hosting/forge-gateway.md) |
+| One identity writing from two places at once | two writers can pick the same nonce; one write is dropped ([E704](errors.md#e704)) | `docs/errors.md` |
+
+## Not supported
+
+- **Shallow clones** (`--depth`, `--shallow-since`, `--shallow-exclude`) fail with [E205](errors.md#e205). Use `git clone --filter=blob:none` for a smaller checkout (it saves disk, not download: see the next point).
+- **A partial clone does not download less than a full one.** A stored pack holds whole pushes, not single objects, so `git clone --filter=blob:none` reads every pack and keeps the commits and trees. The blobs git then fetches on demand (a checkout, `git log -p`, `git blame`) come only from the packs that hold them: the clone records which blobs each pack it read holds (`.git/dash/catalog/`). Every pack is still read again by a `git fetch` or `git pull` into a partial clone (a full clone reads only the new ones), by an on-demand fetch of a tree or commit (`--filter=tree:0`), and by one of a blob in a pack pushed since the clone last read every pack.
+- **Atomic pushes** (`git push --atomic`): each branch and tag is its own write.
+- **Git LFS objects.** A repository can hold LFS pointer files, but the large files are not stored: keep large binaries out of git, or attach them to releases.
+- **A git older than 2.44** cannot clone histories with malformed author lines ([E511](errors.md#e511)).
+- **Forks and webhooks of private repositories** ([E207](errors.md#e207)).
+
+What Forge leaves out by design or for later is in the [FAQ](FAQ.md#what-doesnt-forge-do-yet).
+5:["slug","limits","d"]
+7:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();a:T1628,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["d582ba29e8e69ad479156428a084d7f20b6ecd1e",[[["",{"children":["docs",{"children":[["slug","limits","d"],{"children":["__PAGE__?{\"slug\":\"limits\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","limits","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"limits","title":"Limits","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c0ac0143def9f6bb.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This address is not a page of Dash Forge. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","$Lc",null,{"href":"/","className":"hit-area mt-4 text-dense text-forge-700 underline dark:text-forge-400","children":"Discover repos"}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null

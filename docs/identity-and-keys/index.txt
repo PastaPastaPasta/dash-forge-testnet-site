@@ -1,0 +1,565 @@
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","6936","static/chunks/6936-e87287636f2de846.js","6893","static/chunks/6893-7d8c5169cf8fd88e.js","121","static/chunks/app/docs/%5Bslug%5D/page-fd33617315217982.js"],"DocsView"]
+4:I[827716125,[],""]
+6:I[463262791,[],""]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3185","static/chunks/app/layout-21ed0fc3fc9dcc5b.js"],"Providers"]
+9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6434","static/chunks/6434-c83bc61d331d581b.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7601","static/chunks/app/error-37a206d254351107.js"],"default"]
+b:I[369217361,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],""]
+3:Te380,On Dash Forge, your account is a **Dash Platform identity**. No company holds it for you. There is no password reset and no support desk. This page explains what an identity is, which keys it has, how to back it up, and how to keep its keys out of places they don't belong.
+
+1. [What an identity is](#what-an-identity-is)
+2. [The keys in an identity](#the-keys-in-an-identity)
+3. [Backup and recovery](#backup-and-recovery)
+4. [Where keys live today](#where-keys-live-today)
+5. [Never paste a master key into a web page](#never-paste-a-master-key-into-a-web-page)
+6. [Rotating and disabling keys](#rotating-and-disabling-keys)
+7. [Limited keys and the web app](#limited-keys)
+8. [Encryption key (private repositories)](#encryption-key-private-repositories)
+9. [The browser vault and its limits](#the-browser-vault-and-its-limits)
+10. [Trust roots](#trust-roots)
+11. [Your public profile](#your-public-profile)
+
+---
+
+## What an identity is
+
+An identity is a record on Dash Platform with:
+
+- an **id**: a 42–44 character base58 string such as `ExampLeidentityExampLeidentityExampLeidentEx`. It appears in your repository addresses (`dash://<id>/<repo>`);
+- a set of **public keys**. Anything you write on Forge is signed by one of them, and Platform checks the signature;
+- a **credit balance** that pays Platform fees. 1 DASH = 100,000,000,000 credits.
+
+You create an identity by locking some Dash in an *asset lock* transaction. The locked amount becomes the identity's credits. Forge does not create or fund identities for you; see [Costs](costs.md).
+
+Create one from the terminal with `dg auth new`, in the web app (**Sign in → Create a new identity**), or with the Dash bridge (<https://bridge.thepasta.org>). All three derive the same keys from the same 12 words, so an identity made in one opens in the others. The [quick start](quick-start.md#2-get-an-identity) walks through `dg auth new`.
+
+**Usernames.** Platform has a name service, DPNS. Register a username in the web app (Settings → **Choose a username**: it checks the name is free, shows the fee, about 0.0007 DASH, and signs once with your identity file or the 12 words, which it does not keep), with `dg auth name register <label>` (the same file or words, once) or in the bridge. Your browser's own key can't sign it: Platform keeps that key to Dash Forge's contracts. Names of 3–19 characters made only of `a`–`z`, `0`, `1` and `-` are *contested*: they go to a masternode vote (0.1 DASH to enter, two weeks on mainnet), and the web app and `dg` both refuse them and suggest a name with another digit. The web app resolves usernames: `forge.dashhq.org/alice/project`, `@alice` in the header's jump box, and names on profiles and in the wallet sign-in confirmation. So does the CLI: `git clone dash://alice/project` and `dg … alice/project` resolve `alice` (or `alice.dash`) through DPNS, proof-verified. The identity id still works everywhere.
+
+**Look-alike names.** DPNS treats only `o`/`0` and `i`/`l`/`1` as the same letter, so `dash-pay`, `dashpay2` and `rnyname` (for `myname`) are names anyone can register. The web app remembers, in your browser only and per network, the owners and repositories you visit, star or follow. When a profile or repository page has a name that looks like one you star or follow but belongs to someone else, it says "Not to be confused with dashpay, which you starred." When it only looks like one you visited, it says both exist, since either could be the real one. Compare the identity id before you trust the page. Clearing the site's data in your browser clears the list.
+
+---
+
+## The keys in an identity
+
+An identity file from the bridge, the web app or `dg auth new` has five keys, all ECDSA secp256k1, plus the limited keys you add ([below](#limited-keys)):
+
+| Id | Purpose | Security level | Used for |
+|---|---|---|---|
+| 0 | AUTHENTICATION | **MASTER** | Changing the identity's own keys (add, disable). Nothing on Forge needs it. |
+| 1 | AUTHENTICATION | HIGH | Signing documents: pushes, issues, comments, reviews, releases. |
+| 2 | AUTHENTICATION | CRITICAL | What HIGH does. Forge uses it only when the file has no HIGH key. |
+| 3 | TRANSFER | CRITICAL | Moving credits to another identity, or withdrawing them. |
+| 4 | ENCRYPTION | MEDIUM | Private repositories and members-only content in public ones (see [Encryption key](#encryption-key-private-repositories)), and decrypting webhook secrets addressed to a relay you run. |
+| 5+ | AUTHENTICATION | HIGH | [Limited keys](#limited-keys): what `dg`, `git push` and the web app sign with day to day. |
+
+What each tool signs with:
+
+- `git push` (`git-remote-dash`) and every `dg` command that writes, including `dg repo create` and `dg collab add/remove`, sign with the key `dg auth` stored: a **limited key**. Given a full identity file instead they use its **HIGH** key, falling back to CRITICAL. Without one they fail with [`E302`](../errors.md#e302).
+- The web app signs with this browser's [limited key](#limited-keys).
+- The MASTER key signs only one-time steps: registering, topping up or disabling a limited key (`dg auth login`, `dg auth keys add|disable`, `dg auth logout --disable`, and the web app's Import, Renew, Top up and Revoke). It is used for that one signature and not stored.
+
+---
+
+## Backup and recovery
+
+**The 12 words are the identity.** Every key above is derived from the 12-word mnemonic the bridge showed you when it created the identity. Anyone who has those words controls the identity and its credits. If you lose them, and every copy of the identity file, **nobody can recover the identity**. Not the Forge project, not Dash Core Group, not anyone.
+
+Do this once:
+
+1. Write the 12 words on paper, in order. Keep two copies in separate places.
+2. Keep the words offline. Do not put them in a password manager that syncs, in a note-taking app, or in a screenshot.
+3. Treat the identity file (`dash-identity-<id>.json`) like the words. It contains them, plus every private key. Keep it offline once you have signed in: `dg auth login` stores only a limited key and the encryption key. If you keep it on disk, keep it `chmod 600`; `dg doctor` warns when an identity file it uses is readable by other users, and `dg doctor --fix` tightens it.
+
+If you lose a laptop but still have the words or a backup of the file, nothing is lost. Your repositories, issues and history are on Platform, not on your laptop:
+
+1. On the new machine run `dg auth login --mnemonic` (type the 12 words) or `dg auth login <file>` with your backup. It registers a new limited key and stores only that, with the encryption key beside it.
+2. Disable the lost machine's key: in the web app, **Settings → Devices & keys** lists every key and has **Disable** (your identity file or recovery phrase signs once); in the terminal, `dg auth keys list` shows it and `dg auth keys disable <id>` disables it (or pass `--replace <id>` to the login above to do both in one update). A limited key can only spend its remaining budget, and only on Forge, until then.
+3. In a browser, **Sign in → Import an identity file or recovery phrase** registers a fresh limited key for that browser; the words alone are enough.
+4. If you use private repositories, the lost machine also held your **encryption key**, which a disabled signing key does not protect. Replace it: `dg auth keys rotate --encryption` ([below](#replacing-it-after-a-lost-device)).
+
+Your **repository data** needs no backup of its own. Refs, issues and PRs are on Platform. Pack bytes are on Platform or in the storage you chose. Any clone also holds a full copy of the history, and [`dg reseed --from-local`](bring-your-own-storage.md#restoring-a-lost-copy) can restore a lost pack copy from it.
+
+---
+
+## Where keys live today
+
+| Tool | Where the key is | How it finds it |
+|---|---|---|
+| `dg` | A **limited key** in the OS keychain: macOS Keychain, Secret Service (Linux) or Windows Credential Manager, service `dash-forge`, account `<network>/<identity id>`. Without a keychain: `~/.config/dash-forge/identities/<network>-<id>.key`, sealed under a passphrase (Argon2id + XChaCha20-Poly1305, 0600) | `--identity <source>` > `DASH_FORGE_KEY` > the default `dg auth` recorded in `config.toml` |
+| `git-remote-dash` | The same | `DASH_FORGE_KEY`, else `~/.config/dash-forge/identities/<owner>.identity.json` if that file exists, else the default `dg auth` recorded |
+| `forge-import` | The same | `--identity <source>` > `DASH_FORGE_KEY` |
+| Mirror Action | A CI secret: an inline runner key, or a CI-only identity file | the `DASH_FORGE_KEY` secret ([mirror guide](mirror-a-github-repo.md#the-ci-secret)) |
+| Web app | A **limited key** (or a key your wallet granted, with the budget and expiry you approved there; the older code's keys have no limits, see below), encrypted in the browser's IndexedDB (passkey or passphrase), unlocked for the session | Registered once from your identity file, recovery phrase, a new identity, or your wallet; see [below](#limited-keys) |
+
+A key *source* (`--identity`, `DASH_FORGE_KEY`, the recorded default) is any of:
+
+- a path to an identity file (bridge JSON), or to a file `dg auth` sealed under a passphrase. The passphrase comes from `DASH_FORGE_PASSPHRASE`, or from a prompt on the terminal; `git-remote-dash` asks on `/dev/tty`. A `git push` that `dg` runs (`dg init`, `dg pr merge`) doesn't ask again: `dg` hands the unlocked key to the helper through a pipe only that `git` inherits, never through the environment;
+- `keychain:dash-forge/<network>/<identity id>`, an OS keychain entry;
+- `dfk1:<network>:<identity id>:<key id>:<wif>`, one limited key in one value, for CI secrets. Pass it in the environment, not as `--identity` (arguments are visible to other users). `dg`, `git-remote-dash`, `forge-import` and the Mirror Action all accept it.
+
+Things to know:
+
+- On macOS `dg` reads and writes the keychain through Apple's `/usr/bin/security`, so `dg`, `git-remote-dash` and upgraded copies of either read the entry without an access dialog. Any program running as you can ask `security` for it without a prompt: the keychain protects entries at rest and from other users. What `dg` keeps there is limited identity keys (a budget, an expiry, Forge contracts only), with your identity's encryption key beside them (it reads your private repositories; `--signing-only` leaves it out), and the storage credentials `dg storage add` is given, so scope those to the one bucket. A full identity (`dg auth login --full-key`: master key and recovery phrase) never goes there; it is always a passphrase-sealed file. The GitHub CLI stores its token the same way.
+- Over SSH there is no keychain dialog to answer; use a sealed key file there (`DASH_FORGE_NO_KEYCHAIN=1 dg auth login …`).
+- `--insecure-plaintext` stores the key unencrypted (0600) where there is no keychain and no way to type a passphrase. Every later use warns.
+- Key files are owner-only (0600, in 0700 folders) on macOS and Linux. On Windows they rely on your user profile's default permissions, so pick an `-o` export location only you can read.
+- In the web app, the key never leaves that browser, but any script running on the page can use it while it is unlocked ([details](#the-browser-vault-and-its-limits)). Lock or sign out on shared machines.
+
+---
+
+## Never paste a master key into a web page
+
+A web page is whoever served it. If the page, or a script it loads, is compromised, anything you paste into it is gone.
+
+- **Never paste your MASTER key, your 12 words, or your main identity file into a website.** That includes forge.dashhq.org. Nothing on Forge needs them.
+- The web app's **Import** reads your identity file (or recovery phrase) once: its master key signs one update that registers a [limited key](#limited-keys) for this browser, and is not retained. If you would rather not load the master key into a web page at all, use **Sign in → Use dg on your computer**: the page shows a `dg auth keys add --for-browser …` command, `dg` registers the key with your master key on the terminal and prints a line that only that tab can open ([below](#a-browser-key-from-dg)). **Use my Dash wallet** also keeps the master key out of the page (the wallet registers the key).
+- Forge asks for your recovery phrase only after you start a key action yourself. Every phrase prompt, in the web app and in `dg`, shows the same warning: *"Your recovery phrase controls your identity. Forge asks for it only after you start a key action yourself, never because a message, an email or a pop-up says so. If you didn't start this, stop here."* A page that asks for your words without it, or because a message told you to, is not Forge.
+- For CI, give a pipeline its own limited key: `dg auth export --new-key --budget 0.5 --expires 365d --format dfk1 --reveal-secrets -o runner.dfk1` makes one, and the file's one line is the `DASH_FORGE_KEY` secret.
+- Prefer a copy of the web app that you [serve yourself](verify-forge.md#run-your-own-copy-of-the-web-app) if you do not want to trust the one on forge.dashhq.org.
+
+With limited keys (below) the web app keeps nothing but a limited key (or, after a wallet sign-in, the key the wallet granted). The master key is used only in one-time steps: registering, topping up, renewing or revoking a limited key.
+
+---
+
+## Rotating and disabling keys
+
+Platform lets the MASTER key add new keys to an identity and disable old ones. A disabled key can never sign again. Your identity id, balance and data stay the same.
+
+```sh
+dg auth keys list                        # every key: purpose, level, budget left, expiry, this computer's
+dg auth keys add [--budget 0.25 --expires 180d] [--replace <id> | --keep-current]   # a new key for this computer; disables the one it replaces
+dg auth keys add --for-browser <request> [--replace <id>] [--with-encryption-key]   # a key for a browser tab, printed sealed to it
+dg auth keys disable <id>                # disable one (limited keys; --force for others)
+dg auth keys disable --all-limited       # disable every signing key except this computer's and the master, after listing them
+dg auth keys rotate --encryption [--keep-old]   # replace the ENCRYPTION key and move your private repos to it
+dg auth logout [--disable]               # forget the key here (and disable it on chain)
+```
+
+`add`, `disable`, `logout --disable` and `export --new-key` need the master key once: pass `--master <identity file>`, or type the 12 words when asked. `dg` never disables the MASTER key, and refuses keys that are not Forge limited keys unless you pass `--force`.
+
+When to rotate:
+
+- a laptop or CI secret that held a key was lost or leaked: **disable that key**, and if it also held the encryption key (any `dg auth login` with private repos, a browser with private repos enabled), **replace the encryption key** too;
+- a limited key's budget is nearly spent or it is about to expire: `dg auth keys add` registers a fresh one and disables this computer's current key in the same update (`--replace <id>` names another key to disable, `--keep-current` keeps the current one live on chain, though this computer no longer stores it; `dg auth login … --replace <old id>` does the same at sign-in).
+
+Told to revoke your keys, or unsure which devices still hold one? Disable them all at once: [If Forge tells you to revoke keys](revoke-keys.md).
+
+A browser's own key is managed in the web app: **Settings → This browser's key** can top it up, renew it or revoke it ([below](#limited-keys)).
+
+If the **MASTER** key or the 12 words leak, rotating does not help: whoever has them can add keys and disable yours. The identity is lost. Move your credits out with the TRANSFER key to a new identity, and start over there with new repositories: push your clones to them. Repository ownership cannot be transferred, and the attacker now controls everything only the owner can do, such as adding and removing members.
+
+---
+
+## Encryption key (private repositories)
+
+A private repository encrypts its content under a repository key, and each member gets that key wrapped (encrypted) to their identity's **ENCRYPTION** key. Without one, nobody can add you to a private repository and you cannot create one. Identities from `dg auth new`, the bridge and the web app carry key 4 for this.
+
+The same key reads [members-only content](../security/audiences.md) in public repositories: issues, comments and reviews only a repository's members can read. Without it you can still be a member of a public repository and do everything public, and you receive the members key once you set one up and a maintainer runs `dg repo keys repair`. Writing members-only content without one stops with [`E306`](../errors.md#e306): set up your encryption key first.
+
+**Using it from the CLI.** Reading or writing a private repository needs the ENCRYPTION key's private half. `dg auth login` (from the identity file or the recovery phrase) and `dg auth new` store it beside the limited signing key, where the limited key is kept (the keychain, or a passphrase-sealed file), as the web app's Settings → Members-only and private content does: private repositories work with no master key on disk. `dg auth status` shows it (`Private:`). `--signing-only` (or `--insecure-plaintext`, which would write it in the clear) stores the signing key alone; a key stored by an older `dg` is one too, and signing in again with `--replace <key id>` adds it (`dg auth status` prints the command). `dg auth keys add` keeps the encryption keys the key it replaces holds. Without it, private-repo commands stop with [`E306`](../errors.md#e306); `DASH_FORGE_KEY=<identity file>` works for one command.
+
+`dg` uses the same stored key for members-only content in public repositories. It opens the key only for a repository with members-only content that you are a member of, so other reads never ask for a passphrase. A key protected by a passphrase is asked for on the terminal; with no terminal (or with `--json`) and no `DASH_FORGE_PASSPHRASE`, you see the members-only items as locked, with a note saying how to unlock.
+
+**An identity without one** can add it. This is **Set up your encryption key**:
+
+```sh
+dg auth keys add --encryption
+```
+
+- One identity update, signed by your **MASTER** key (your identity file, or your recovery phrase typed when asked). The key is derived from the recovery phrase at the identity's key path with the next key id (`m/9'/<coin>'/5'/0'/0'/0'/<id>'`), so the words alone recover it; nothing is stored by `dg`.
+- If the identity already has an ENCRYPTION key, it says so and does nothing.
+- `dg auth keys list` shows the result.
+
+**What it can read.** This key can read every private repo you're a member of, and every key you've handed out as a maintainer. Keep it as carefully as your signing keys.
+
+### Replacing it after a lost device
+
+```sh
+dg auth keys rotate --encryption [--master <identity file>] [--keep-old]
+```
+
+It runs the rekey of [private-repos.md §5.2](../security/private-repos.md#52-encryption-keys-derivation-custody-blast-radius-rekey), in this order, and prints the plan and its cost before anything is signed:
+
+1. Adds a new ENCRYPTION key, derived from the recovery phrase at the next key id, so the words alone recover it (one identity update, signed by the MASTER key).
+2. Rotates the key of every private repository you **maintain**: a new key epoch, wrapped to every member, you first, to your new key. Each costs one wrap per member plus one anchor.
+3. Names the private repositories where you are only a writer, triage or reader. You cannot rotate those. A maintainer's next visit (or `dg repo keys repair <repo>`) wraps the current key to your new one. Until then, new content there is sealed for the old key.
+4. Disables the old key, unless `--keep-old` is given or a repository failed to rotate. A disabled key still opens what was sealed for it, so nothing you could read is lost. Whoever holds the old key keeps what was sealed before, but nothing sealed from now on.
+
+The key `dg` stores beside your limited key (`dg auth login`) gets the new key too. A repository counts as moved only when a fresh read shows your wrap for its current epoch on the new key. If one is not, every old key stays enabled and nothing is lost. Run the command again: each run adds a fresh key and treats every enabled encryption key as old, since a lost device may have held an earlier run's key too. Other computers and browsers need the new key: sign in again with the words, or in the web app add it from **Settings → Members-only and private content**.
+
+**In the web app**, **Settings → Members-only and private content** stores your encryption key in this browser's vault: from your recovery phrase, your identity file or the key itself, checked against your identity first, or **Register a new key** for an identity that has none. A wallet sign-in with the older code stores it for you; the current one (App Connect v2) does not ([below](#signing-in-with-the-dash-wallet-app-what-works-today)). The vault keeps every encryption key you give it, and **Add another encryption key** adds one more.
+
+---
+
+## Limited keys
+
+A limited key is an identity key with four restrictions:
+
+- AUTHENTICATION purpose, HIGH security level;
+- bound to the `dash-forge` **contract group**: it can sign batches on the group's members only. These are forge-core, forge-collab, and any later Forge contract the Forge deployer adds to the group. Identity updates, credit transfers and writes to any other contract are refused at consensus;
+- a **budget**: the most its transitions can ever take from your identity;
+- an **expiry**.
+
+| Where | Budget | Expires |
+|---|---|---|
+| Browser | 0.05 DASH | 90 days (30 days to 1 year) |
+| CLI (`dg auth new` / `login` / `keys add`) | 0.25 DASH | 180 days |
+| CI runner (`dg auth export --new-key`, Mirror Action) | 0.5 DASH | 365 days |
+
+All are editable at creation (`--budget`, `--expires`).
+
+**What else the key can sign for.** Only the group's owner can add members to the group. That owner is the Forge deployer, and nobody else can take the role: the owner and admins are fixed when the group is created. Before binding a key, `dg` and the web app check on chain, with proofs, that:
+
+- the group's owner is the deployer recorded in the app, and the group has no admins;
+- the group holds forge-core and forge-collab;
+- every other member belongs to a contract the deployer owns.
+
+If any check fails, they refuse. A member the app does not know yet, such as a newer Forge contract revision, is accepted and listed before you confirm the key: `dg` adds a `note:` line to its explanation, and the web app shows it on the key-creation screen. A member contract the app cannot read is accepted too, because only the pinned owner could have added it, and the note says so. With `dg` only, pass `--strict-group` (or set `DASH_FORGE_STRICT_GROUP=1`, for CI) to refuse anything beyond the contracts your `dg` knows. See [trust roots](#trust-roots) and [forge-v2 § Contract group trust](../contracts/forge-v2.md#contract-group-trust).
+
+From the terminal:
+
+```sh
+dg auth new [--amount 0.05] [--name alice]      # 12 words → deposit QR → identity + a limited key in the keychain
+dg auth login                                   # scan a QR code with DashPay; the wallet adds the limited key
+dg auth login <file> | --mnemonic               # or import once; registers a limited key and stores it with the encryption key
+dg auth status                                  # identity, name, key, its origin, budget left, expiry, balance, where it is stored
+dg auth export --new-key --format dfk1 --reveal-secrets -o runner.dfk1   # a key for CI
+dg auth name register <label>                   # a DPNS username
+```
+
+`dg auth new` shows the 12 words once and asks you to type three of them back. It then shows the deposit address as a QR code and as text. Fund it from any Dash wallet (the faucet on devnets), and `dg` does the rest: the asset lock, its proof (InstantSend where the network offers one, else a chain lock), and one IdentityCreate that registers the standard keys plus this computer's limited key. The limited key is stored in the keychain *before* the identity exists, so an interruption never leaves a key nobody holds. An interrupted run resumes with `dg auth new --resume` (type the words again); the deposit address stays the same. The words are shown only in a terminal, and never with `--json` or in CI. Without a terminal, `--backup-file <new file>` is required: the words and keys go only to that passphrase-sealed file (0600, `DASH_FORGE_PASSPHRASE` without a terminal or with `--json`) and only its path is printed. `--skip-backup-check` skips the three-word check in a terminal and needs `--backup-file`; it never prints or writes the words anywhere else.
+
+### Signing in from the terminal with DashPay
+
+`dg auth login` signs in with the DashPay wallet on your phone (App Connect), so neither the recovery phrase nor the master key touches this computer. Giving it an identity file, `--identity <file>` or `--mnemonic` signs in from your identity's master key instead (`--full-key` and `--replace` need one of those, and stop with a usage error without); `--wallet` asks for the wallet explicitly:
+
+1. `dg` prints a QR code and the same request as a `dash-key:` link (copy it to the phone if the camera can't read the terminal). In DashPay, open **More → Tools → Connections → Scan QR**, or open the link on the phone.
+2. The wallet shows "Dash Forge" and the key it is asked for: one limited key (bound to the `dash-forge` contract group) with `dg`'s proposed limits, 0.25 DASH for 180 days, or `--budget` / `--expires` (a wallet grants at most 5 DASH and 365 days). You can keep them or pick another limit in the wallet. Approving adds the key to your identity.
+3. `dg` reads the answer from Platform (no Forge server is involved, so this works over SSH), checks the key on chain, and shows the identity, its username if it has one, and the budget and expiry the wallet granted. **Check that it is the identity your wallet showed** and confirm. The key is then stored like any limited key: the keychain, else a passphrase-sealed file (`--insecure-plaintext` as for `dg auth login`).
+
+The code is valid for 10 minutes; in a terminal `dg` offers a new one when it expires (not with `--yes`), otherwise run the command again. **Scan only a code `dg` printed on this computer**: anyone who answers it signs in this terminal as their own identity, which is why `dg` asks you to confirm the identity, and refuses outright when two identities answer. `--yes` accepts the identity without asking (for scripts; the code still has to be scanned).
+
+**Without a terminal** (stdin is not a terminal, or `--json`), a bare `dg auth login` does not start a wallet sign-in: it stops at once with [E802](../errors.md#e802), stores nothing and waits for nothing, so a script that forgot its identity file fails fast instead of waiting 10 minutes for a phone. A script that does want the wallet says so: `dg auth login --wallet --yes` (the QR code and the link are printed to stderr as text, `--json` too). CI should use a `dfk1:` key in `DASH_FORGE_KEY` and never log in at all.
+
+`dg` checks before it shows a code that it can store the key (a keychain, a terminal to type the key file's passphrase in, `DASH_FORGE_PASSPHRASE`, or `--insecure-plaintext`). Once the wallet has answered, and before anything is written, `dg` looks at what this computer stores for the identity that answered (not just the default identity). If that is the identity's master key (`--full-key`), or a key `dg` cannot open (a sealed file without its passphrase, for example), it asks before the wallet's key replaces it, and refuses with `--yes`. A limited key `dg` registered earlier stays live on Platform; `dg` names it so you can disable it.
+
+`dg auth status` shows each key's origin (`Origin:`: your DashPay wallet, registered with your recovery phrase, an identity file, a dfk1 key, or the OS keychain for a key an earlier `dg` stored), its budget left and its expiry, and for a wallet key "Renew in your wallet". `--json` has the same as `keyOrigin` (`wallet`, `phrase`, `file`, `dfk1`, `keychain`). To renew it, run `dg auth login` again: the request names the identity, and the wallet disables the previous key it gave this computer in the same update (dg sends the same connection id, kept in `app-connect.toml` beside `config.toml`; a damaged file or id is reported, not replaced). Signing in again as the same identity keeps the encryption key the old key had beside it, when `dg` can open the stored copy (not a sealed file you replace without its passphrase); a wallet sign-in does not bring one of its own, so private repositories otherwise need `dg auth login <file>` or `--mnemonic` once. To disable the key, disconnect Dash Forge in the wallet (Connections), or `dg auth keys disable <id>` with your master key.
+
+Wallets: DashPay for Android 11.9.2 or later. On testnet, where Forge runs today, use DashPay's testnet build: the `-testnet.apk` on the [latest dash-wallet release](https://github.com/dashpay/dash-wallet/releases/latest), installed beside the store app. Dash Wallet for iOS speaks the same protocol, but no testnet build of it is available to download.
+
+### A browser key from dg
+
+On a computer where `dg` is signed in, a browser can get its key without the recovery phrase:
+
+1. In the web app, **Sign in → Use dg on your computer** (or **Settings → This browser's key → Renew key → With dg**). Pick how long the key lives (30 days to a year) and whether the browser should also open private repos. The page shows a command with a one-time request in it:
+
+   ```sh
+   dg auth keys add --network testnet --for-browser dfkr1:testnet:Ap… --budget 0.05 --expires 365d [--replace 7] [--with-encryption-key]
+   ```
+
+2. Run it. `dg` shows what the key can spend and what the update costs, asks, signs with your master key (the stored identity file, `--master <file>`, or your words), and prints one line starting with `dfkh1:`.
+3. Paste that line into the page and choose a passphrase or passkey. The browser checks the key on chain and keeps it in its vault.
+
+When the page knows your identity (a renewal, or a key this browser already holds), the command carries `--for-identity <id>` and `--replace <key>`, and `dg` refuses before signing if it would make the key for another identity. The printed line is sealed to the tab that showed the request: anyone else who sees it cannot open it, and it opens on that network only. `--replace <id>` (filled in by Renew) disables the browser's old key in the same update; `--with-encryption-key` hands over the identity's encryption key too, for private repos. This computer keeps signing with its own key. A key that came from `dg` renews with `dg` by default, so renewing never asks for the recovery phrase.
+
+Ways to get one in the web app (**Sign in**):
+
+| Route | What happens |
+|---|---|
+| Use dg on your computer | `dg` registers the key and prints it sealed to this tab ([above](#a-browser-key-from-dg)). The recovery phrase stays out of the browser. |
+| Import an identity file or recovery phrase | Your master key signs one IdentityUpdate that adds the limited key. It is used once and not retained. You choose how long the key lives: 30 days, 90 days (the default), 6 months or 1 year. |
+| Create a new identity | 12 words, a check on three of them, a choice of passkey or passphrase, then a deposit from any Dash wallet (the faucet on devnets). One IdentityCreate registers the standard key set plus this browser's limited key, so no second signature is needed. The key is stored in the vault *before* it is registered, and an interrupted creation resumes when you type the same words again. On mainnet, where the wallet can sign you in, this sits under **Other ways to sign in**. |
+| Get DashPay (mainnet) | On mainnet, where the wallet can sign you in, the sheet's first option for newcomers: install DashPay for Android or Dash Wallet for iOS, create your identity in it (the recovery phrase stays on the phone), then sign in with **Use my Dash wallet**. Testnet and devnets keep **Create a new identity** first. |
+| Use my Dash wallet | **A limited key**, granted by your wallet through App Connect v2: one approval for all of Forge, with a spending limit and an expiry you confirm in the wallet. On testnet it works with the testnet build of DashPay Wallet for Android 11.9.2 or later (More → Tools → Connections); scan the QR code (or tap the link on the phone) and approve. **Check that the username and identity shown match what your wallet showed**: anyone who saw the QR code could answer. No encryption key comes with it. Details [below](#signing-in-with-the-dash-wallet-app-what-works-today). |
+| Advanced: paste a key | A HIGH or CRITICAL key, for this tab only, lost on reload. It has no limits Forge set. Never paste a master key. |
+
+The header shows your balance and the key's remaining budget. It turns amber when the budget drops under 20 % or expiry is less than 7 days away, and red when the key is spent or expired. A write that would overrun either is refused before it is signed, and the sheet that opens says which one blocks. **Settings → This browser's key** shows the budget and expiry and has these actions:
+
+- **Top up key budget** adds budget to the same key (0.05 DASH by default) and can push its expiry out, up to 365 days. It is an `IdentityKeyLimitsUpdate` (Dash Platform v5), signed once by your master key from the identity file or recovery phrase, and costs about 0.00002 DASH.
+- **Renew key** opens **Renew this browser's key**: **With dg** (the default for a key that came from `dg`) or **With identity file or phrase** registers a fresh key and disables the previous one in the same update (about 0.00028 DASH). An encryption key this browser holds moves to the new key.
+- **Lock** drops the unlocked key in every open tab and ends the kept session; unlock again with the passkey or passphrase.
+- **Settings → Security → Stay signed in for public repos (up to 12 h)** (on by default): reloads and new tabs keep only the spend-capped signing key, for up to 12 hours after the unlock and until 4 hours pass without use. Private repos, storage credentials and wallet grants still ask you to unlock, once per tab. Turn it off and every reload or new tab starts locked.
+- **Revoke on Platform** disables this browser's key (about 0.00002 DASH). It needs your identity file or recovery phrase once. After a reload it first asks you to unlock this tab, so it can disable every key the browser holds.
+- **Sign out & forget key** deletes the key from this device. Forgetting is **not** revoking: a forgotten key stays valid on chain until it expires. If you topped the identity up in this browser, a note of where its next top-up starts (or an unfinished top-up) stays, with no keys or words in it; Forget and Revoke say so before you confirm.
+
+For a key a wallet granted without limits, **Renew key** reads **Replace with a limited key**, **Revoke on Platform** reads **Disable key on Platform**, and **Top up key budget** is not offered (Platform cannot add limits to such a key).
+
+Losing a device costs nothing beyond that key's remaining budget. Register a new key and disable the old one.
+
+### Signing in with the Dash Wallet app: what works today
+
+The **Use my Dash wallet** tile asks your wallet for one key for all of Forge through **App Connect v2** (Dash Platform's App Connect contract, protocol 14). The key it grants is limited: bound to Forge's contracts, with a spending limit and an expiry you confirm in the wallet. Released wallets answer it (checked 2026-11-22):
+
+| Wallet | Network | Works today |
+|---|---|---|
+| DashPay Wallet for Android 11.9.2 or later, testnet build (`dashpay-wallet-…-testnet.apk` on the [DashPay Wallet releases](https://github.com/dashpay/dash-wallet/releases/latest)) | testnet | **Yes.** Checked end to end on 2026-11-22: approval, sign-in and a write with the granted key. The testnet build installs next to the store app. |
+| Dash Wallet for iOS 9.1.4 or later | testnet | Speaks App Connect v2, but there is no verified way to put a store build on testnet. |
+| DashPay Wallet for Android 11.9.2, Dash Wallet for iOS 9.1.4 | mainnet | Both answer App Connect v2 on mainnet. Forge is not deployed on mainnet yet. |
+| Any released wallet | devnets | No: released wallets carry no devnet's settings. |
+
+On testnet the sheet lists the wallet first; creating an identity in the browser stays the recommended start for newcomers, since the testnet wallet is a sideloaded app. In the wallet the feature is under More → Tools → Connections.
+
+What to expect:
+
+- **One approval for all of Forge.** The key covers repositories, issues, pull requests, stars and profiles. The wallet shows the app ("Dash Forge"), your identity, the spending limit (Forge proposes 0.05 DASH) and when the connection expires (Forge proposes 90 days). You can change both before approving.
+- **Scan only a code shown on forge.dashhq.org.** The request names Forge and nothing about the site that shows it, so a lookalike site can show a code that looks the same, and your wallet cannot tell them apart. If you approve one, that site gets a key that signs Forge writes as you, within the limits you approved. Forge never asks you to scan a code it didn't show you on its own site. If you scanned a code you didn't trust, use **Settings → Devices & keys → Disable all other keys** (your identity file or recovery phrase signs once). [If Forge tells you to revoke keys](revoke-keys.md) has the steps.
+- **No encryption key.** App Connect v2 gives Forge a signing key only. To read private repositories and members-only content, import your encryption key under **Settings → Members-only and private content**.
+- **Renewing.** When the key's budget or time runs low, Forge offers **Renew in your wallet**: the wallet grants a new key and disables the old one in the same update.
+- **Disconnecting it in the wallet** disables the key on Platform, on every device that holds it, including one a passkey restored it to. Nothing signs with it after that: each write, and each notification-service request, checks the key on chain first. The next unlock on such a device says "This key was disconnected in your wallet, so sign in again" and offers **Forget this key and sign in again**. With **Stay signed in for public repos** on, the next page load says it too.
+- **Check the identity yourself.** The answer does not prove who sent it: anyone who saw the QR code could answer. Forge refuses if two identities answer. When one does, Forge shows which: compare the username and identity id with the wallet's approval screen. Forge warns when the identity has no username, a username less than a day old, or is not the one this browser already knows. A request expires after 10 minutes; keep the QR code private.
+- **A freshly restored wallet may not answer until it has synced.** If the wallet says its connection records can't be read, let it finish syncing, then open or scan the code again.
+
+#### The older code (DashConnect)
+
+Behind **Show the older code**, the sheet still offers the older key exchange (DashConnect, one key per Forge contract, with no spending limit or expiry). DashPay for Android 11.9.2 and later refuse it, and Dash Wallet for iOS has dropped it on its development branch; only iOS 9.1.4 still answers it, on testnet. What it means if you use it:
+
+- **One approval per Forge contract**, each first one with a second code that adds the key to your identity; right after the first sign-in the web app walks through the rest ("Step 2 of 3: approve Forge collaboration").
+- **No spending limit or expiry**, which Platform cannot add later. The app warns about it and offers **Replace with a limited key** (your identity file or 12 words, once), which disables the wallet's keys in the same update.
+- **A disabled wallet key cannot be replaced by the wallet**: it derives the same key every time, so Forge refuses that sign-in; use Import instead.
+- **Disconnect in the iOS wallet doesn't disable the key.** Use **Settings → This browser's key → Disable key on Platform**, or **Settings → Devices & keys → Disable all other keys**.
+- **It also registers an encryption key**, which Forge keeps in this browser's vault; replace it if you scanned a code you didn't trust ([above](#replacing-it-after-a-lost-device)).
+
+[wallet-login.md](../design/wallet-login.md) has the protocol details, and [wallet-primary.md](../design/wallet-primary.md) the plan to make the wallet the primary sign-in.
+
+Drafts of the wallet-side fixes (group-scoped, limited grants; a signature that proves which identity answered) are in [`docs/upstream/`](../upstream/app-connect-responder-auth.md), for the owner to file with dashpay.
+
+CI gets one pasteable value, `DASH_FORGE_KEY=dfk1:<network>:<identity id>:<key id>:<wif>`, in place of a file. `dg auth export --format dfk1` writes only limited keys.
+
+---
+
+## Devices & keys
+
+**Settings → Devices & keys** lists every key on your identity as the network has it: what each is for (master, a Forge key with a budget and an expiry, a key for one Forge contract, encryption, transfer), what is left of its budget, when it expires, and which one this browser signs with. Name a key ("work laptop") to tell them apart; names stay in this browser. **Disable** turns off a lost device's key for good; your identity file or recovery phrase signs once (about 0.00002 DASH). **Disable all other keys** does it for every signing key except this browser's and the master, wallet sign-ins and other apps' keys included, 10 keys per update ([If Forge tells you to revoke keys](revoke-keys.md)). The master key cannot be disabled, this browser's own key goes through **Revoke on Platform**, and the encryption key is not disabled here, because your private repos open with it: **Lost a device?** on the same page gives the `dg auth keys rotate --encryption` command that replaces it ([below](#replacing-it-after-a-lost-device)). Platform does not record when a key was last used: a budget that went down was used, and the page shows when this browser last wrote.
+
+**New-key alert.** Each browser remembers which keys your identity had when it last looked. When you sign in or unlock and a key has appeared that this browser did not add, a red bar names it. Added it yourself (with `dg`, another browser, a CI runner)? Choose **It was me**. If not, choose **Review keys** and disable it: whoever holds your recovery phrase or master key can add keys, so a key you did not add is the first sign of a leak. A new **master** key means someone else may control the identity ([below](#rotating-and-disabling-keys)). The check reuses the identity read every sign-in makes; it costs nothing.
+
+**Storage.** The vault lives in the browser's storage, which a browser may clear under storage pressure, and Safari clears after 7 days without a visit. Forge asks the browser to keep it when it stores a key (`navigator.storage.persist()`), and Devices & keys says whether it agreed. If the vault is cleared, sign in again with `dg`, your identity file or your recovery phrase.
+
+## Passkeys for other devices
+
+A passkey added in the web app lets another device sign in without your identity file. **Settings → Devices & keys → Passkeys for other devices → Add a passkey** makes the passkey, confirms it with a second prompt, and stores a copy of this browser's keys, encrypted to that passkey, on Platform. On the other device, **Sign in with a passkey** opens them and keeps the session in that browser under the same passkey. It works at <https://forge.dashhq.org> only (and `localhost` for development), and only once the network's forge-meta has the passkey vault.
+
+- **It moves a session. It doesn't recover an account.** The keys it carries are the limited keys you already have, with their budget and expiry. When the key expires or is disabled, the passkey stops working: renew with your identity file or recovery phrase (or in the wallet that granted it).
+- **Every device shares the same key and budget.** Disabling the key signs all of them out. The list says which passkey is this device's and which key each holds; **Needs update** appears when a passkey holds an older key after a renewal, and asks that passkey once to save the new one.
+- **Keys without a spending limit stay on this device only.** A passkey holds a key only if it has a budget and an expiry, because the encrypted copy is public on Platform for good. A v1 wallet's unlimited per-contract key is left out; the page counts how many.
+- **Your encryption key is not included unless you tick it.** Once written, it can't be taken back: removing the passkey later does not lock out anyone who has it. Replace the encryption key too ([above](#replacing-it-after-a-lost-device)).
+- **Removing a passkey** deletes its entry (the deposit comes back); the key it held keeps working. Revoking or disabling a key offers to remove the passkeys that hold it first.
+
+Adding the first passkey costs about 0.0005 DASH from the key's budget ([costs](costs.md#passkeys-for-other-devices)). The threat model is in [passkey vault](../security/passkey-vault.md).
+
+## The browser vault and its limits
+
+The limited key is stored in IndexedDB, encrypted with AES-256-GCM. The data key is wrapped by a passkey's PRF output (stretched with HKDF), by Argon2id of your passphrase (64 MiB, 3 passes, 16-byte salt), or by both. Each ciphertext is bound to its network and identity.
+
+Once unlocked, a session lasts across reloads, typed URLs and new tabs for **public repos**: up to 12 hours after the unlock, and not after 4 hours without use. It ends at once when you lock or sign out in any tab (every tab locks), or when the key turns out to be disabled or expired on chain. A resumed session holds only a signing key bound to Forge's contracts, with a budget and an on-chain expiry (a browser key: 0.05 DASH and 90 days by default; a wallet's key only when the wallet gave it a budget and an expiry). Anyone with JavaScript running on this site, or a copy of your browser profile taken within the window, could use that key. Your encryption key, storage credentials and wallet grants are never stored unlocked: a reloaded tab asks you to unlock (one passkey gesture, or your passphrase) the first time it needs them, and keeps them in that tab's memory only. The vault holds every encryption key this browser was given (from an identity file, a recovery phrase, a pasted key, a new registration, or each wallet approval), and that one unlock opens all of them, for every repository in the tab. Turn this off with **Stay signed in for public repos**.
+
+What the vault does **not** protect against:
+
+- **Script running in the page.** The vault protects the key at rest. While it is unlocked, any script running on the page (an XSS) can use it. During the stay-signed-in window a script on any page load of this site can also read the kept signing key and send it off, bounded by that key's budget and on-chain expiry (not the encryption key, storage credentials or wallet grants, which are never kept). The page's CSP allows inline scripts, which Next's static bootstrap needs. It does not allow JavaScript `eval`, only `wasm-unsafe-eval` for the SDK's WebAssembly. forge.dashhq.org also runs one third-party script, Cloudflare's Web Analytics beacon, with the page's privileges. The CSP allows only its exact URL and the page pins its bytes by SRI hash, so a changed script is refused, not run ([Hosting §6](../hosting.md#6-cloudflare-web-analytics-the-page-carries-the-beacon)). A build you host yourself has no such script unless you set `NEXT_PUBLIC_CF_BEACON_TOKEN`.
+- **Someone with a copy of your browser profile, taken within the window.** The kept record is deleted when the app next runs after it expires, not the moment it does, and the browser may keep the key that seals it in the profile. So a copy taken before your next visit can use the signing key without your passphrase or passkey, until its budget or on-chain expiry runs out, or you revoke it. Nothing else of the vault is in that record. **Stay signed in for public repos** off closes this.
+- **Clickjacking where the host sends no header.** `frame-ancestors` only works as an HTTP header, and GitHub Pages can't send one. Cloudflare, in front of Pages, can add it ([Hosting the web app](../hosting.md#7-security-headers) lists the headers); until it does, forge.dashhq.org can be framed. A framed page never picks up a kept session, so it opens locked. A copy you host yourself needs `Content-Security-Policy: frame-ancestors 'none'` too.
+- **A shared origin.** On a GitHub Pages project site (`*.github.io/<repo>`) or an IPFS path gateway (`ipfs.io/ipfs/…`), other sites share the origin and could read the vault or ask the browser for the passkey's PRF output. So the app refuses to create or unlock a vault there. Browsing still works. Use <https://forge.dashhq.org> (the Pages deployment's custom domain, set in the repository's Pages settings) or an IPFS subdomain gateway (`<cid>.ipfs.<gateway>`).
+
+---
+
+## Trust roots
+
+- **The contract group id** comes from `forge-contracts/deployments/<network>.json`, which is built into the app and `dg`. So is **the group's owner**, which the same file pins. The owner (and any admins, of which Forge's group has none) is the only identity that can **add** contracts to the group. Every group-bound key can then sign for those contracts too, including keys registered earlier. Binding a key to the group therefore means trusting its owner. On testnet it is the deployer that registered Forge's contracts there, `3pjHaytsQJg5aKZj3VeqwBPccN7uN3bCJiUNkT8KUBwM`. Before binding a key, the app and `dg` check on chain, with proofs, that the group's owner is the pinned one and that it has no admins. They also cross-check that every member belongs to a contract that owner owns. Members they do not know are listed, not refused. `dg --strict-group` refuses them ([forge-v2 § Contract group trust](../contracts/forge-v2.md#contract-group-trust)). The owner cannot change, so this pin holds for the life of the group.
+- **Watching the deposit** goes through DAPI, the Dash network's own evonodes: a bloom-filtered `subscribeToTransactionsWithProofs` feed of the deposit address from the block the creation started at, `broadcastTransaction` for the asset lock and `getTransaction` for its height. The web app asks nothing else: it watches on two nodes at once and moves a feed that fails or goes silent to another node. `dg` falls back to a block explorer (Insight, `dg auth new --explorer <url>`) when DAPI cannot answer or the feed is idle. No source is trusted with amounts: each deposit output is read from a raw transaction whose txid is computed locally (an explorer's is fetched and hashed against the txid it named) before the asset lock is signed. A lying node or explorer can delay you or hide funds, but it cannot redirect or burn them. If a broadcast is dropped, the signed bytes are kept and sent again.
+- **The InstantSend proof** comes from the same evonodes. Before the asset lock is broadcast, the web app and `dg` open `subscribeToTransactionsWithProofs` feeds on three nodes, filtered on the lock's txid and the outpoints it spends. An InstantSend lock is sent once, live, and never replayed, so the feeds have to be open first. The first lock that names the lock's txid makes the proof. Platform checks its signature itself, so a node cannot fake one. With no lock within a minute, the proof is a chain lock instead, a few minutes slower. So is it for a lock already mined, and for a resumed creation whose lock was already InstantSend-locked, since that lock is not sent again. `dg` can also poll a `getislocks` JSON-RPC of your choice alongside the feeds (`dg auth new --islock-rpc <url>` or `islock_rpc` in `config.toml`). None is set by default: the public testnet one, `trpc.digitalcash.dev`, no longer follows the chain. If Platform refuses an InstantSend proof, `dg` retries with a chain lock, on a resumed creation too.
+- **The quorum keys** every proof is checked against come from `quorums.<network>.networks.dash.org`, as for every read. The web app compares them with a second source on each repository page ([Verify Forge](verify-forge.md#the-web-app-cross-checks-the-keys-with-a-second-source)).
+- **The code doing the checking**: the web app you loaded, or the `dg` you built. If you do not trust forge.dashhq.org, [serve the app yourself](verify-forge.md#run-your-own-copy-of-the-web-app).
+
+---
+
+## Your public profile
+
+Your profile is the page at `/u/?id=<your identity id>` (or `/u/?name=<username>`): your username and id, your follower counts and your repositories. You can add a **display name**, a **bio**, a **company**, a **location**, up to **four links** (https only) and an **avatar** to it. They are one `profile` document of your identity, which only you can write, change or delete.
+
+**It is public.** Anyone can read your profile, on any page that shows it, and it is never encrypted: a member of one of your private repositories sees the same profile as everybody else. Put in it only what you would post publicly.
+
+Edit it in the web app (**Settings → Public profile**, or **Edit profile** on your own profile page) or with `dg`:
+
+```sh
+dg profile set --name "Alice Example" --bio "Builds wallets." --company "Example Co" \
+  --location Lisbon --link https://alice.example --link https://mastodon.social/@alice \
+  --avatar identicon
+dg profile show            # yours; `dg profile show @bob` or an identity id for someone else's
+dg profile set --company ""    # an empty value clears a field; a field you don't name is kept
+dg profile set --clear-links   # removes every link; --link replaces them all
+dg profile delete              # removes the document (part of its deposit comes back)
+```
+
+Both check the same rules before anything is signed: a name, company or location of at most 60 characters on one line, a bio of at most 500 characters (line breaks are fine), and links that start with `https://` and hold no spaces. Writing a profile costs about 0.0004 DASH the first time and a fraction of that to edit (see [Costs](costs.md#what-each-action-costs)).
+
+**Avatars.** Forge hosts no images. Your profile page shows one of:
+
+- **Your pattern** (the default, or `--avatar identicon`): a 5×5 pattern every browser draws from your identity id, so nothing is fetched;
+- **Another pattern** (`--avatar identicon:<seed>`): the pattern of a seed you choose (a seed that is another identity's id draws your own pattern, so no one can borrow someone else's);
+- **Image link** (`--avatar https://…`): a picture you host. Visitors see your pattern until they choose to load images from its host, as with images in issues and comments, because loading it tells that host their IP address.
+
+Everywhere else (beside your comments, repositories and reviews) Forge draws the pattern of your identity id with its first 7 and last 5 characters, whatever your profile says. Anyone can copy a picture or register a similar name, but not that pattern: it changes with every character of the id.
+
+### Bot accounts
+
+An identity that runs automation (a CI bot, an importer) can carry a **bot** badge beside its name in issue and pull request threads, with its operator on its profile page. The badge needs both sides to agree, so no one can label someone else a bot, and no bot can claim an operator who does not vouch for it:
+
+```sh
+dg profile bot operator @alice     # as the bot: name the identity that runs you ("" clears it)
+dg profile bot add @alice-bot      # as the operator: list a bot you run (up to 8)
+dg profile bot remove @alice-bot
+dg profile show @alice-bot         # "bot  operated by …" once both are set
+```
+
+Each command writes only your own profile, so the badge appears once both identities have run theirs.
+
+### Signed commits and Verified badges
+
+If you sign your commits with git (an SSH key with `gpg.format=ssh`, or an OpenPGP key), publish the key on your profile. Your signed commits then show **Verified** in the web app, on the commits list, the commit page and a pull request's commits, in every repository you own or are a member of:
+
+```sh
+dg profile key add                    # the key git signs with (user.signingkey, gpg.format)
+dg profile key add --ssh ~/.ssh/id_ed25519.pub
+dg profile key add --gpg 0x1234ABCD5678EF90
+dg profile key list
+dg profile key remove <end of fingerprint>
+```
+
+In the web app, paste the public key (an `ssh-ed25519 …` line, or the output of `gpg --armor --export <key id>`) under **Settings → Public profile → Signing keys**.
+
+- **Which keys.** Ed25519 SSH keys, and Ed25519 or ECDSA (P-256/384/521) OpenPGP keys. A profile lists at most four, of at most 300 bytes each, so an RSA key does not fit: add an Ed25519 signing subkey (`gpg --quick-add-key <fingerprint> ed25519 sign`). For an OpenPGP key, the key that signs is published: the newest subkey that may sign, else the primary key, as gpg picks it.
+- **What Verified means.** The signature checks against a key that exactly one of the repository's owner and members lists on their profile. The badge names that identity. As with a key on a GitHub account, nobody proves they hold the private key of a key they list. Forge does not tie it to the commit's author email either, which it doesn't know. A key that two identities list names nobody.
+- **Unverified** says why: the key is on no member's profile, more than one identity lists it, the signature does not match the commit (it was changed after signing), or it is a kind Forge does not check (X.509, RSA, an SSH key that is not Ed25519, SHA-1).
+- **Checked where.** In your browser (and by `dg`): nothing is asked of a server. The web reads the repository's members and their profiles once a page shows a signed commit.
+
+Check commits from a clone with `dg verify-commit`, which gives the same verdict as the badges:
+
+```sh
+dg verify-commit HEAD main~3
+dg verify-commit --author @bob HEAD    # also trust a pull request author's keys
+```
+5:["slug","identity-and-keys","d"]
+7:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();a:T1628,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["d582ba29e8e69ad479156428a084d7f20b6ecd1e",[[["",{"children":["docs",{"children":[["slug","identity-and-keys","d"],{"children":["__PAGE__?{\"slug\":\"identity-and-keys\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","identity-and-keys","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"identity-and-keys","title":"Identity and keys","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c0ac0143def9f6bb.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This address is not a page of Dash Forge. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","$Lc",null,{"href":"/","className":"hit-area mt-4 text-dense text-forge-700 underline dark:text-forge-400","children":"Discover repos"}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null

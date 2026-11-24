@@ -1,0 +1,277 @@
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","6936","static/chunks/6936-e87287636f2de846.js","6893","static/chunks/6893-7d8c5169cf8fd88e.js","121","static/chunks/app/docs/%5Bslug%5D/page-fd33617315217982.js"],"DocsView"]
+4:I[827716125,[],""]
+6:I[463262791,[],""]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3185","static/chunks/app/layout-21ed0fc3fc9dcc5b.js"],"Providers"]
+9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6434","static/chunks/6434-c83bc61d331d581b.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7601","static/chunks/app/error-37a206d254351107.js"],"default"]
+b:I[369217361,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],""]
+3:T3452,A Forge mirror of a GitLab project (on gitlab.com or your own instance) is a copy nobody can take down. It works like the [GitHub mirror](mirror-a-github-repo.md):
+
+- **Refs and history metadata** live on Dash Platform, signed by your identity.
+- **Pack bytes** live in your own storage, on Platform, or both.
+- **Readers** clone with `git clone dash://…` or browse the static web app.
+
+You keep working on GitLab and let the mirror follow.
+
+This guide covers:
+
+1. [Before you start](#before-you-start)
+2. [First import: code, issues, merge requests, labels and releases](#1-first-import)
+3. [Keep it in sync from GitLab CI](#2-keep-it-in-sync-from-gitlab-ci)
+4. [What is mirrored, and what is not](#3-what-is-mirrored)
+
+---
+
+## Before you start
+
+You need:
+
+- `dg`, `git-remote-dash` and `forge-import`. [Build them from a source clone](quick-start.md#1-install): `cargo install --locked --path crates/forge-import` adds the importer to the two it installs. Or the [install script](../INSTALL.md#install-script-linux-and-macos) fetches all three from the latest release, with `DASH_FORGE_BINARIES="dg git-remote-dash forge-import"` set.
+- A funded identity, exported as `DASH_FORGE_KEY` ([quick start, steps 2–3](quick-start.md#2-get-an-identity)).
+- A GitLab access token with the **`read_api`** scope, in `GITLAB_TOKEN`. For a private project, give it **`read_repository`** too. A project access token scoped to the one project is enough (Settings > Access tokens).
+  - Without a token, the importer reads what GitLab shows anonymously: the project, its issues and merge requests, releases and the code. On gitlab.com, anonymous reads of comments, discussions and labels are refused (`401`), so a run without a token imports items without their threads and says so.
+  - GitLab.com plans to limit anonymous API use to 60 requests an hour. Use a token for anything but a quick look.
+- Optional but recommended: a storage profile for your own bucket ([Bring your own storage](bring-your-own-storage.md)), set with `dg storage use <profile> --global`, so pack bytes do not go on Platform.
+
+> **Network.** Forge runs on testnet, the tools' default network. See [Which network](README.md#which-network).
+
+---
+
+## 1. First import
+
+Name the project as `gitlab.com/<group>/<project>` or by its URL. A project on your own GitLab instance is named by its path, with `--gitlab-url`:
+
+```sh
+export GITLAB_TOKEN=glpat-…        # read_api
+export DASH_FORGE_NETWORK=testnet   # forge-import does not read dg's saved network
+forge-import gitlab.com/acme/widget --dry-run
+forge-import team/app --gitlab-url https://git.example.org --dry-run
+forge-import team/app --gitlab-url https://example.org/gitlab --dry-run   # a relative URL root
+```
+
+A GitLab installed under a relative URL root (`https://example.org/gitlab`) needs `--gitlab-url` with that root. A bare project URL such as `https://example.org/gitlab/team/app` cannot tell the root from the group path.
+
+The token is sent as `Authorization: Bearer`, only to that instance: the importer follows no redirect. A project that moved answers with a redirect, and the importer reports the new path instead of following it. An `http://` instance is refused unless you pass `--allow-http`, because the token would travel unencrypted.
+
+**Members-only content is refused by default.** When a project's issues or merge requests are visible only to its members on GitLab, the importer stops and names the flag `--include-members-only`. A Forge mirror is public and permanent, so members-only discussions must never be published by accident. Pass the flag only if you mean to publish them, or leave that class out with `--sync`. Internal comments and confidential issues are never mirrored, flag or not.
+
+Start with a dry run. It reads everything, compares it with what the destination already holds, and prints what it would write and the estimate. Then run it with a cap:
+
+```sh
+forge-import gitlab.com/acme/widget --max-spend 0.5 --state ./widget.sync.json --i-have-the-rights
+```
+
+A real run needs `--i-have-the-rights` (or a "y" at a terminal): a mirror is permanent and carries other people's commits, comments and usernames. The run shows the licence GitLab reports for the project and warns when it has none. See [the GitHub guide](mirror-a-github-repo.md#1-first-import) for the whole notice. A project that tracks files with Git LFS is warned about: the mirror holds the pointer files only.
+
+The flags are the same as for GitHub: `--repo`, `--sync`, `--max-spend`, `--state`, `--dry-run`, `--limit`, `--concurrency`, `--yes`, `--i-have-the-rights`, `--summary-json`, and the network flags. See the [GitHub guide's table](mirror-a-github-repo.md#1-first-import). In `--sync`, `prs` means merge requests (`mrs` works too). `dg import gitlab.com/acme/widget` is the same engine.
+
+**Re-running is safe and cheap.** What is already mirrored is decided on chain, by the GitLab URL each document records (`https://gitlab.com/acme/widget/-/issues/12`, `…/-/merge_requests/3`, and `…#note_<id>` for a comment). A re-run writes only what is new and costs nothing when nothing changed. It is the same scheme as the GitHub importer.
+
+The exit codes and the summary's `status` are the same as for GitHub: `ok`, `partial`, `cap_exceeded` or `error`.
+
+**When GitLab refuses part of the project,** the run carries on with the rest. Examples: comments or labels without a token (`401`), or releases that are disabled or members-only (`403`). Each refusal is a warning that names the cause, and the run ends `partial` (exit 4). A partial run does not advance `--state`, so the next run with more access reads those items again. Only a refused project read fails the run.
+
+**Rate limits.** The importer makes at most 100 API requests a minute, which is GitLab.com's planned limit for the Free tier. On a `429` it waits for as long as GitLab's `Retry-After` says.
+
+---
+
+## 2. Keep it in sync from GitLab CI
+
+GitLab's own push mirroring cannot target Forge: it accepts only `http://`, `https://`, `ssh://` and `git://` URLs ([GitLab docs](https://docs.gitlab.com/user/project/repository/mirror/)). Use the CI template in [`integrations/gitlab/`](../../integrations/gitlab/README.md) instead. It has two jobs:
+
+- **`forge-mirror-code`** runs on every push to a protected branch or tag, on schedules, and on manual runs. It pushes `refs/heads/*` and `refs/tags/*` with explicit refspecs, capped at `FORGE_PUSH_CAP`.
+- **`forge-import`** runs on schedules and manual runs when `FORGE_IMPORT` is `"true"`. It runs `forge-import` for issues, merge requests, labels and releases, under `FORGE_COST_CAP`. A partial run (exit 4) shows as a warning, or as a failure with `FORGE_FAIL_ON_PARTIAL: "true"`.
+
+Both jobs run only on protected refs. That is where the protected key is available, and an unprotected branch's pipeline must never reach it.
+
+Add to the project's `.gitlab-ci.yml`, pinning a Dash Forge commit you have reviewed (the commit in the URL and `FORGE_SOURCE_REF` must agree). Or pin a release: its tag in the URL (`v0.2.0`) and `FORGE_VERSION: "0.2.0"` instead of `FORGE_SOURCE_REF`:
+
+```yaml
+include:
+  - remote: https://raw.githubusercontent.com/PastaPastaPasta/dash-forge/<40-character commit>/integrations/gitlab/dash-forge-mirror.yml
+
+variables:
+  FORGE_REPO: dash://<owner identity id>/<repo name>
+  FORGE_VERSION: ""                              # empty: build from the commit
+  FORGE_SOURCE_REF: <40-character commit>        # the same commit as in the URL
+  FORGE_IMPORT: "true"
+  FORGE_COST_CAP: "0.05"
+```
+
+Then, in **Settings > CI/CD > Variables**:
+
+| Variable | Type | Flags | Value |
+|---|---|---|---|
+| `DASH_FORGE_KEY` | **File** | Protected | The CI identity file ([The CI secret](mirror-a-github-repo.md#the-ci-secret)), or a file holding a `dfk1:` runner key. |
+| `GITLAB_TOKEN` | Variable | Masked, Protected | A project access token with `read_api`. The job token cannot read issues, notes, discussions or labels ([GitLab docs](https://docs.gitlab.com/ci/jobs/ci_job_token/)). |
+| `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Variable | Masked, Protected | Only with `FORGE_STORAGE_KIND: s3`. |
+
+Why these settings:
+
+- **A File variable for the key.** A masked variable must be a single line of a limited character set, which an identity JSON is not. A File variable is written to a temporary file, and the job reads its path from `DASH_FORGE_KEY`. The jobs refuse any other type without printing the value. The tools refuse identity contents passed where a path belongs, and never echo them.
+- **Protected.** Protected variables reach only pipelines on protected branches and tags. The default branch is protected by default. Protect tags (`*`) too if they should mirror. A merge request from a fork never sees the key.
+
+For the scheduled import, add a schedule in **Build > Pipeline schedules > New schedule**, for example daily. It runs with the schedule owner's permissions.
+
+What the template does:
+
+- `resource_group: dash-forge-mirror`, so two mirror jobs never run at once. A second job waits for the first.
+- `GIT_DEPTH: "0"`, the whole history. New projects clone 20 commits deep, and a shallow push is refused.
+- **Installing the tools.** One of `FORGE_VERSION` (a release) or `FORGE_SOURCE_REF` (a reviewed commit) is required, so nothing is installed from a moving branch.
+  - With `FORGE_VERSION`, it runs that release tag's `install.sh`, the same installer the GitHub Mirror Action uses, which checks the archive against its `SHA256SUMS`.
+  - Otherwise it runs `cargo install --git … --rev $FORGE_SOURCE_REF`, with a checksummed protoc: for code that is not in a release, pin a commit you have reviewed in the `include` URL and set `FORGE_SOURCE_REF` to the same commit instead of `FORGE_VERSION`. The first build takes several minutes, and the CI cache keeps the binaries after that.
+  - Installers run with the key and tokens removed from their environment.
+- **The code push** fetches every branch into a private namespace, then runs `git push --prune dash://… '+refs/forge/heads/*:refs/heads/*' '+refs/tags/*:refs/tags/*'`. It never uses `--mirror`. GitLab also advertises `refs/merge-requests/*`, `refs/pipelines/*` and `refs/environments/*`, and `--mirror` would publish each of them as a paid ref update.
+- **The import** keeps its `--state` file in the CI cache, so a scheduled run asks GitLab only for what changed. The run summary is kept as an artifact (`.forge/summary.json`).
+- **Storage.** `FORGE_STORAGE_KIND: s3` with the `FORGE_S3_*` variables adds your bucket for the job only, as the GitHub Action's inputs do. `FORGE_S3_VIRTUAL_HOSTED: "true"` selects virtual-hosted addressing (AWS), and `FORGE_REPLICAS` sets the storage confirmations a push needs.
+- **Members-only content.** `FORGE_INCLUDE_MEMBERS_ONLY: "true"` passes `--include-members-only`. An `http://` GitLab needs `FORGE_GITLAB_ALLOW_HTTP: "true"`.
+
+**The CI key can spend.** An import spends at most `FORGE_COST_CAP`. A code push the helper prices above `FORGE_PUSH_CAP` (default 0.05 DASH) is refused before anything is stored. Give CI a separate identity with a small balance, or a limited `dfk1:` key, as described for [GitHub](mirror-a-github-repo.md#the-ci-secret).
+
+---
+
+## 3. What is mirrored
+
+| GitLab | Forge |
+|---|---|
+| Branches and tags | Branches and tags (force-pushes and deletions too). |
+| Issues `#n` | Issues, at the same number. The body opens with *"Mirrored from gitlab.com/acme/widget#12 by @bob"*. |
+| Merge requests `!n` | Pull requests at the same number: title, description, target branch, head commit, state (open, closed, merged, draft; a merge is recorded against the mirrored tip of the target branch that contains the merge commit, or as closed when that branch is not mirrored), and labels. GitLab numbers issues and merge requests separately, and so does Forge. |
+| The head of an open merge request | `refs/mirror/pull/<n>/head`, so it can be checked out. This includes fork merge requests: GitLab keeps a fork MR's head in the project too. |
+| Comments on issues, discussions on merge requests | Comments, oldest first. A diff comment keeps its file, line and commit as the comment's anchor. |
+| Labels | Label definitions, and each item's labels. |
+| Releases | Tag, title, notes, and each asset link, recorded by URL. GitLab reports no digest or size for links. A link whose label is not a plain file name (`Linux: x86_64`) is recorded under the last part of its URL, or the label with the unsafe characters replaced by `_`. |
+
+**Merge requests whose commits are gone.** GitLab deletes `refs/merge-requests/<n>/head` 14 days after a merge request closes or merges ([GitLab docs](https://docs.gitlab.com/user/project/merge_requests/merge_request_troubleshooting/)). Such a merge request is still imported: its metadata, state (closed or merged), comments and the head commit id. Its body says that its commits are not available. A merged one's changes are in its target branch anyway.
+
+**Not mirrored:**
+
+- Comments marked internal, and confidential issues. The mirror is public, and those are members-only on GitLab.
+- System notes ("changed the description", "added 1 commit"). State is replayed as events instead.
+- Later edits to a title or description, reactions, milestones, assignees, approvals, epics, the wiki, snippets, and CI pipelines.
+- GitLab's generated source archives of a release.
+5:["slug","mirror-a-gitlab-project","d"]
+7:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();a:T1628,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["d582ba29e8e69ad479156428a084d7f20b6ecd1e",[[["",{"children":["docs",{"children":[["slug","mirror-a-gitlab-project","d"],{"children":["__PAGE__?{\"slug\":\"mirror-a-gitlab-project\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","mirror-a-gitlab-project","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"mirror-a-gitlab-project","title":"Mirror a GitLab project","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c0ac0143def9f6bb.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This address is not a page of Dash Forge. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","$Lc",null,{"href":"/","className":"hit-area mt-4 text-dense text-forge-700 underline dark:text-forge-400","children":"Discover repos"}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null

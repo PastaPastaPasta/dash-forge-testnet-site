@@ -1,0 +1,184 @@
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","6936","static/chunks/6936-e87287636f2de846.js","6893","static/chunks/6893-7d8c5169cf8fd88e.js","121","static/chunks/app/docs/%5Bslug%5D/page-fd33617315217982.js"],"DocsView"]
+4:I[827716125,[],""]
+6:I[463262791,[],""]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3185","static/chunks/app/layout-21ed0fc3fc9dcc5b.js"],"Providers"]
+9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6434","static/chunks/6434-c83bc61d331d581b.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7601","static/chunks/app/error-37a206d254351107.js"],"default"]
+b:I[369217361,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],""]
+3:T1763,A board lays a repository's issues and pull requests out in columns (Todo, In progress, Done…), with fields such as priority, estimate and iteration, and saved views. It is Forge's GitHub project, Trello board or Jira board. How boards work, and why, is in the [boards design](../design/boards.md).
+
+- **Who can do what.** Anyone can look at a public repository's boards. Maintainers, writers and triage members move items, set their fields, and add, archive or remove them. Maintainers and writers create, edit, close and delete boards.
+- **What shows on a board.** A board's *sources* bring in items by themselves (the new-board templates take every issue and pull request of the repository, or every issue labelled `bug`); members add others by hand, from any repository. Closed and merged items go to the Done column, and leave the board once they have been closed for longer than its auto-archive time (14 days in the templates).
+- **What it costs.** Each change is one document. Your first card for an item (an item a source shows on the board has no card until someone moves it) costs about 0.0007 DASH, 0.0009 for the board's first card, and 0.0004 when another member already has a card for it; every later move, field change or archive of it about 0.00005 DASH. A new board costs about 0.0006 DASH, and an edit, close or delete about 0.00005 (measured on testnet). Every command shows its price and asks before it spends (`--yes` skips the question).
+- **Private repositories.** A private repository's boards and cards are encrypted for its members. The items a card names are not: a card on a private board that names another repository's issue tells everyone that the private repository tracks it, so `dg` asks first.
+- **Networks.** Boards need the boards update of the Forge contracts (testnet has it since 2026-10-27). Until a network has it, every `dg board` command stops with E702.
+
+## From the command line
+
+Name a board by its number (from `dg board list`) or its name. Name an item `#12` (or `12`) in the board's repository, `owner/name#12` in another, and `pr#12` when an issue and a pull request share the number. Inside a clone, the repository can be left out, as with every `dg` command.
+
+```sh
+dg board list   <owner>/<repo>                       # --deleted to include deleted boards
+dg board create <owner>/<repo> --name Roadmap        # Todo, In progress, Done
+dg board create <owner>/<repo> --name Sprints --template sprint
+dg board create <owner>/<repo> --name Release --columns "Backlog,Doing,Review,Done"
+dg board view   <owner>/<repo> Roadmap               # every column, its items and totals
+dg board view   <owner>/<repo> Roadmap --view Table  # as a saved view filters and sorts it
+```
+
+`--template` is one of the web's: `kanban` (the default: Todo, In progress and Done, every issue and pull request, Priority, Estimate and a two-week Iteration), `sprint` (Backlog to In review and Done, two-week sprints and estimates), `triage` (issues labelled `bug`, from Needs triage to Fixed, with a Priority) and `empty` (one column, nothing added for you). `--columns` replaces the template's columns; a column named Done takes closed and merged items. Running the same `create` again (the same name and columns) finds the board the first run made instead of making a second one.
+
+`dg board view` prints each column with its items, their fields, the item count, the sum of the first number field (an estimate) and the work-in-progress limit, marked when a column is over it. With an iteration field it ends with the current iteration's progress. `--archived` shows archived items too. With `--json` it prints the board, each column, each item with its column, rank and fields, and `fold`, the placement every Forge client computes ([schema](../schemas/dg/board-view.schema.json)).
+
+Moving and planning:
+
+```sh
+dg board move <owner>/<repo> Roadmap #12 "In progress"           # to the bottom
+dg board move <owner>/<repo> Roadmap #12 "In progress" --top
+dg board move <owner>/<repo> Roadmap #12 Done --before #9        # or --after #9
+dg board set  <owner>/<repo> Roadmap #12 priority=P1 estimate=3 iteration=@next
+dg board set  <owner>/<repo> Roadmap #12 estimate=               # clear a field
+dg board next-iteration <owner>/<repo> Sprints                    # carry unfinished work over
+```
+
+`dg board set` takes fields by the names the board gives them: an option's name for a select field, a number, a date (`YYYY-MM-DD` or `@today`), an iteration (`@current`, `@next`, `@previous`, or its number), or text; `status=<column>` moves the item. `dg board next-iteration` moves every open item of the current iteration that is not in the Done column into the next one, one write each, priced together first.
+
+Adding and removing:
+
+```sh
+dg board add     <owner>/<repo> Roadmap #12 #15 alice/lib#3 --column Todo
+dg board add     <owner>/<repo> Roadmap --title "Login page is slow"   # opens a new issue there
+dg board archive <owner>/<repo> Roadmap #4 #7                          # --restore brings them back
+dg board remove  <owner>/<repo> Roadmap #9                             # even if a source includes it
+dg board close   <owner>/<repo> Roadmap                                # read-only; --reopen
+dg board delete  <owner>/<repo> Roadmap
+```
+
+A command that changes several items writes them one by one; when one fails, the ones before it have landed, and it stops with E106 saying which. Run it again: items that already have the change cost nothing more.
+
+A card is yours: each member has their own card for an item on a board, and everyone sees the newest. `dg` reads the item's newest card just before it signs and changes only what you asked for, so two members editing different fields of one item both land. Two `dg` commands run back to back on one item (a script's `set` then `move`) can, rarely, have the second read a node that has not seen the first write yet, and undo it; check with `dg board view` between them, or wait a few seconds.
+5:["slug","boards","d"]
+7:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();a:T1628,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["d582ba29e8e69ad479156428a084d7f20b6ecd1e",[[["",{"children":["docs",{"children":[["slug","boards","d"],{"children":["__PAGE__?{\"slug\":\"boards\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","boards","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"boards","title":"Boards","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c0ac0143def9f6bb.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This address is not a page of Dash Forge. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","$Lc",null,{"href":"/","className":"hit-area mt-4 text-dense text-forge-700 underline dark:text-forge-400","children":"Discover repos"}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null

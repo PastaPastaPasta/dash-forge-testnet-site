@@ -1,0 +1,357 @@
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","6936","static/chunks/6936-e87287636f2de846.js","6893","static/chunks/6893-7d8c5169cf8fd88e.js","121","static/chunks/app/docs/%5Bslug%5D/page-fd33617315217982.js"],"DocsView"]
+4:I[827716125,[],""]
+6:I[463262791,[],""]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3185","static/chunks/app/layout-21ed0fc3fc9dcc5b.js"],"Providers"]
+9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6434","static/chunks/6434-c83bc61d331d581b.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7601","static/chunks/app/error-37a206d254351107.js"],"default"]
+b:I[369217361,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],""]
+3:T4fb7,Keep configuration and secrets for each environment (`dev`, `staging`, `production`, any name) next to the repository, encrypted for the people who should read them, and out of git. Run your code with them injected (`dg env run`), or write a `.env` file that git ignores (`dg env export -o .env`).
+
+1. [Who can read an environment](#who-can-read-an-environment)
+2. [Commands](#commands)
+3. [In the web app](#in-the-web-app)
+4. [Changing an environment](#changing-an-environment)
+5. [When two people change it at once](#when-two-people-change-it-at-once)
+6. [Changing members](#changing-members)
+7. [Removing a member](#removing-a-member)
+8. [In CI workflows](#in-ci-workflows)
+9. [Who could read a value](#who-could-read-a-value)
+10. [What is public](#what-is-public)
+11. [Limits](#limits)
+
+---
+
+## Who can read an environment
+
+Every environment has one audience, which you choose when you first save it. There is no default.
+
+| Audience | `--audience` | Who reads it |
+|---|---|---|
+| **Maintainers** | `maintainers` | The repository's owner and maintainers. |
+| **Writers and maintainers** | `writers` | Plus the members with Write access. |
+| **All members** | `members` | Every member: maintainers, writers, triage members and readers. Never bots. |
+| **Specific people** | `people --to @alice,@bob` | Only the people you list, members or not. You're always included. |
+
+Add people beside a group with `--also`, for example a CI bot: `--audience writers --also @ci-bot`. An environment can be shared with at most 64 people.
+
+Each change is encrypted for the people the audience covers **when it is saved**, each with their own encryption key. People who join a group later get the current values when the environment is saved again, never earlier ones. Forge saves the environments a role change affects for you (see [Changing members](#changing-members)). People removed keep what they could read; you get a list of values to change.
+
+Access is granted, not logged. Nobody can tell who read a value.
+
+Every reader needs an encryption key on their identity ([Identity and keys](identity-and-keys.md)). Someone without one is left out, and the command says so before it saves.
+
+A first save without an audience is refused before anything is signed:
+
+```
+error: choose who can read environment production                      [E611]
+  fix:   dg env set … --env production --audience maintainers   # or writers, members, people --to @a,@b
+```
+
+Later changes keep the audience. Change it with `dg env audience --env production --set writers`, which saves the environment again for the new people. Earlier versions stay readable by whoever could read them.
+
+### Environments saved in the old format
+
+Before October 2026, Forge saved Members environments under the repository's members key. Anyone who joins later can read the values saved that way, past values included. Such an environment shows:
+
+```
+Saved in the old format: anyone who joins later can read the values saved this way. Save it again, then change those values where they're used.
+```
+
+`dg env resave --all` saves every such environment again for All members, in the new format. That doesn't take back what joiners could already read, so change those values where they're used (and in the environment), then record it with `dg env mark-changed --env <name>`. Until every old value is marked, the environment keeps a shorter note listing the names.
+
+## Commands
+
+Inside a clone of the repository you can leave out `<owner>/<repo>`.
+
+```sh
+dg env ls      <owner>/<repo>                         # the environments: audience, entries, last change
+dg env ls      <owner>/<repo> --env production        # one environment's entries; values are never shown
+dg env get     <owner>/<repo> DB_URL --env production # one value, to stdout
+dg env set     <owner>/<repo> LOG_LEVEL=info --env dev
+dg env set     <owner>/<repo> STRIPE_KEY DB_URL --env production --secret   # asks for each value, hidden
+dg env unset   <owner>/<repo> OLD_FLAG --env dev
+dg env edit    <owner>/<repo> --env dev               # the whole environment in your editor
+dg env import  <owner>/<repo> .env --env dev          # a .env file, as one change
+dg env run     <owner>/<repo> --env dev -- npm test   # the values go to the command only
+dg env export  <owner>/<repo> --env dev -o .env       # a file only you can read, ignored by git
+dg env export  <owner>/<repo> --env dev | ./deploy    # .env text on stdout, for piping
+dg env history <owner>/<repo> --env production        # who changed what, and when
+dg env exposure <owner>/<repo> --env production       # who could read each current value
+dg env audience <owner>/<repo> --env ci --set writers --also @ci-bot   # change who can read it
+dg env share   <owner>/<repo> --env ci @ci-bot        # give one more person access
+dg env unshare <owner>/<repo> --env ci @ci-bot        # take it away, and list what to change
+dg env resave  <owner>/<repo> --all                   # save again for everyone the audience covers now
+dg env mark-changed <owner>/<repo> --env dev          # old-format values were changed where they're used
+```
+
+- `set` takes several names at once and saves them as one change. A value on the command line can be seen by other users of your computer, so give the name alone to be asked for the value, or pipe it in: `printf %s "$TOKEN" | dg env set API_TOKEN --env dev`.
+- `--secret` marks entries as secrets. Every value is encrypted either way. The type tells Forge what to mask by default.
+- `run` adds the values to the command's environment variables and writes nothing to disk. Its exit code is the command's. It refuses, unless you pass `--allow-env-override`, an entry that replaces a variable already set in your shell, and any entry that changes which program runs or what it loads: `PATH`, `HOME`, `XDG_CONFIG_HOME`, `BASH_ENV`, `ENV`, `ZDOTDIR`, `SHELLOPTS`, `PS4`, `NODE_OPTIONS`, `NODE_PATH`, `PYTHONPATH`, `PYTHONHOME`, `PERL5OPT`, `PERL5LIB`, `RUBYOPT`, `RUBYLIB`, `JAVA_TOOL_OPTIONS`, `_JAVA_OPTIONS`, `JDK_JAVA_OPTIONS`, `RUSTC_WRAPPER`, `SHELL`, and names starting with `LD_`, `DYLD_`, `GIT_` or `npm_config_` (on Windows, in any letter case).
+- `export -o` first adds the file to `.git/info/exclude` and checks with `git check-ignore` that git ignores it, then creates it with mode 0600. It refuses a file git already tracks (also one whose name differs only in letter case), a path a `.gitignore` rule un-ignores, a folder inside a git work tree where git can't run, and an existing file unless you pass `--force` (which replaces a symlink rather than writing through it). The text quotes values so that `source .env` in a shell never runs anything inside them.
+- `edit` opens `$VISUAL` or `$EDITOR` on a temporary file only you can read, and removes it afterwards, also when the terminal closes. Your editor may keep its own swap or backup copies elsewhere. Ctrl-C goes to the editor while it is open. Delete a line to remove an entry. Closing the editor without a change saves nothing.
+- Every command takes `--json`.
+
+## In the web app
+
+The repository's **Settings → Environments** page shows the environments you can read. A maintainer whose tab holds their encryption key also changes them there, as `dg env` does; anyone else reads only.
+
+- **New environment** asks for a name, who can read it and its values. Nothing is selected and **Save** stays disabled until you choose one: Maintainers, Writers and maintainers, All members (each with how many people it is now), or Specific people… (you are always included). **Also give access to…** adds people beside a group, such as a CI bot. A group over 64 people is refused: "All members is 80 people. An environment can be shared with at most 64. Choose a smaller group or specific people."
+- **Edit values** adds, changes and removes entries. A saved value never appears in a field: leave it empty to keep it, type to replace it. **Import a .env file** reads the file in your browser only (the same format `dg env import` reads) and fills in the entries; nothing is saved until you save.
+- **Change who can read this** saves it again for the people you choose. Earlier versions stay readable by whoever could read them.
+- **Save it again** appears where an environment misses someone or is in the old format, and **Mark changed** where values from old-format versions are still to be changed. On a conflict, **Keep this version** keeps one.
+- Every change shows what it saves, for whom ("Save production for Maintainers, sent to 3 people (~ DB_URL)?") and its cost before anything is signed.
+
+- Each environment shows its audience, the people it was sent to, its entries and who saved the version in use, and when. An environment saved in the old format shows the note above. Values are hidden. The eye button shows one value at a time (showing another hides it), on this page only: it isn't stored or logged, and it's hidden again when you leave the page or switch to another tab.
+- Environments you can't read are only counted: "2 environments", or "1 more environment you can't read" below the ones you can, with "An environment in this repo hasn't been shared with you. If you should have access, ask a maintainer to save it again." Maintainers see exactly who is missing: "dana is a writer, but staging hasn't been saved since."
+- Environments open with your encryption key (old-format ones with the repository's members key), which your tab holds once it's unlocked. After a reload, unlock the tab to read them.
+- An ignored change and two versions saved at once show the same warning and versions as `dg`, with the commands to keep one. The page also says how many changes by people who aren't maintainers now were ignored.
+
+## Changing an environment
+
+Only maintainers change environments. Anyone else, writers included, is refused before anything is signed:
+
+```
+error: change production: only maintainers can change environments      [E601]
+```
+
+Each change saves the whole environment again, encrypted for the people its audience covers then, and records which change it replaces. Before it saves, `dg` shows who will be able to read it and the cost, about 0.0025 DASH (one chunk and one record on Dash Platform, measured on a Platform v5 devnet), and asks you to confirm.
+
+Forge counts a change only when its author is a current maintainer. A change by anyone else is ignored by every reader, `dg env run` included, even though Platform lets a writer store it. That includes a former maintainer's changes, from the moment they stop being one. When such a change claims to replace an environment's latest version, `dg env ls`, `get`, `run` and `export` keep using the latest version by a maintainer and say so in one line, naming the ignored change:
+
+```
+warning: production has a newer change by <identity> at 2026-10-05 08:41 UTC (3kQx7pWm2v), who isn't a maintainer now; it was ignored. Ask a maintainer to check production's values.
+```
+
+`dg env ls` shows who saved the version in use and when. `dg env history` lists ignored changes too, marked `ignored: not a maintainer now, never used`.
+
+## When two people change it at once
+
+Two maintainers who change the same environment at the same time leave two versions. Forge never merges them. Until a maintainer keeps one, `dg env run`, `get` and `export` refuse and name every version:
+
+```
+error: 2 people changed production at the same time, so its values can't be used until a maintainer keeps one [E608]
+  cause: production in alice/shop has 2 latest versions (they were made from the same version, and versions are never merged automatically): 8V2UnsMbU1 by <maintainer> at 2026-10-05 08:36 UTC, ByFFj1bXro by <maintainer> at 2026-10-05 08:36 UTC
+  fix:   compare them with `dg env history --env production`, then a maintainer keeps one: `dg env edit --env production --keep <id>`
+```
+
+`dg env history --env production` shows what each version changed. Keep one with `--keep <id>` on `edit`, `set`, `unset` or `import`: the new change starts from that version and replaces every latest version. Versions that share no earlier version (two first versions saved at once, for example) are reported as separate histories, and are kept the same way.
+
+## Changing members
+
+A role change can change who an environment's group covers: adding a reader widens All members, adding a writer widens Writers and maintainers and All members, making someone a maintainer widens Maintainers, and removing someone narrows every group they were in. `dg collab add` and `dg collab remove` work out which environments change, show them with the people added or removed and the cost (about 0.002 DASH each), and save them again as you, in the same command, after the role change lands:
+
+```
+  staging: Writers and maintainers, +<dana>
+  ci: Writers and maintainers + 1 more, +<dana>
+Add <dana> as a writer of alice/shop? (one membership document, …) Then 2 environments are saved again for the people their audiences cover (…).
+```
+
+An environment you can't read is listed as "not updated: ask <who saved it>". A maintainer who can read it saves it with `dg env resave --env <name>`. `dg env ls` shows maintainers every environment that needs saving again, and why: someone joined its group, left it, or changed their encryption key since. `dg env resave --all` saves them all.
+
+## Removing a member
+
+`dg collab remove` saves the environments the member could read again without them (their group's, and any that names them in `--also` or Specific people), and lists the current values they could see, so you know what to change where it's used (the database password at the database, the API key at its provider):
+
+```
+Removed <identity>'s Write access to alice/shop.
+<identity> could read 2 dev values. Change them where they're used: API_TOKEN, API_URL
+```
+
+Removing someone stops them reading changes saved afterwards. It cannot take back what they could already read. Environments you can't open may name them too: the command says so and who to ask. `dg env unshare` does the same for one environment and one person.
+
+When you remove a maintainer, their changes stop counting. Before it asks you to confirm, `dg collab remove` works out what each environment would look like without them and lists every environment that would change: one whose latest version they saved would go back to the version before it, and one with versions saved at the same time would lose theirs. For each it shows what their change did (entry names only, values hidden) and the cost. After the removal it saves those environments again as you, one change each, so they stay as they were. `dg env history` shows such a change as `saved again for <identity>`.
+
+The saves have their own confirmation, so you can remove the member and decline them. `--no-resave` skips them without asking. The removed member can then still read those environments' current values until someone saves them again (`dg env resave --all`).
+
+A save is skipped when someone changed that environment in the meantime. A maintainer removed some other way (an older Forge build, for example) leaves their environments at the version before their last change, and readers see the warning above.
+
+### Making someone a maintainer
+
+Changes saved by someone who wasn't a maintainer are ignored, but they stay on Platform. If that person becomes a maintainer, those changes start counting and could replace the values in use. `dg collab add --role maintainer` checks for this first. For every environment that would change it saves the current values again as you, naming their earlier changes as replaced, before it grants the role. Before its question, the confirmation lists those environments and the cost of saving them. An environment that only they saved, which nobody could use before, is listed as one that appears once they are a maintainer.
+
+### On the web
+
+**Settings → Members** takes the same steps. Adding, removing, promoting or demoting someone shows, in the confirmation and before anything is signed, which environments are saved again, for whom, and the cost: "Adding dana as a writer gives them access to 2 environments: staging, ci. Saving them again costs about 0.004 DASH." The button then reads **Save and add** (or change, or remove). Environments you can't open are listed with who to ask. A removal lists the values the member could read; afterwards each environment has **Mark changed**, which opens it with those values to replace, and drops off the list once they're changed.
+
+The web needs your encryption key, unlocked in the tab, to make a member change in a repository with environments; without it the change is refused before anything is signed. If a change fails part way (the membership saved, the key share refused), the environments it planned are saved for the members as they are, and Settings → Environments lists anything still to save.
+
+## In CI workflows
+
+A [self-hosted runner](self-host-runner.md#environments) gives a job the values of the environment it names, as GitHub Actions does:
+
+```yaml
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production          # or {name: production, url: …}
+    steps:
+      - run: ./deploy.sh
+        env:
+          DB_URL: ${{ secrets.DB_URL }}
+```
+
+Every entry of the environment, secret or plain setting, is a `secrets.NAME` for that job only. An entry wins over a runner secret of the same name. Other jobs of the workflow can't read it, even under the same name in another environment.
+
+A runner reads an environment only when it is shared with the runner's identity **by name**:
+
+```sh
+dg env share <owner>/<repo> --env production @ci-runner        # or --also @ci-runner when you set the audience
+```
+
+A group never counts. All members doesn't include a runner, even one whose identity is a member, so a group environment gives it nothing until you share it by name. Taking it away is `dg env unshare --env production @ci-runner`, which lists the values the runner could read: change them where they're used.
+
+The runner gives the values only to runs it trusts: pushes to its `trusted_refs`, and pull requests from those branches by the owner or a maintainer. A fork's pull request, a non-member's, and a push to any other branch run the job without them, as GitHub runs a fork's pull request without secrets. A trusted run whose environment isn't shared with the runner doesn't run that job: its check says why.
+
+Values are masked in job logs, each line of a value of several lines too. Masking can't catch every way a job could print a value, so only share an environment with a runner whose workflows you trust.
+
+## Who could read a value
+
+Reads can't be logged, but who was given each value can be listed:
+
+```
+$ dg env exposure alice/shop --env production
+Who could read production's current values in alice/shop:
+  DB_URL                           4 people: <alice>, <bob>, <ci-runner>, <dana>
+  STRIPE_KEY                       2 people: <alice>, <ci-runner>
+Access is granted, not logged.
+```
+
+A value counts everyone each version holding it was saved for, so a value someone could read last year is listed with them until it changes. A version saved in the old format adds "anyone who held the members key". Versions you can't open, and changes by people who aren't maintainers now (a removed maintainer's, for example), are counted below the list, without their people.
+
+## What is public
+
+Anyone can see that a repository has environments, how many, and for each change its author, its time, its size (rounded up to 512 bytes) and how many people it was sent to.
+
+Nobody outside the audience can see an environment's name, who it is for, its entries' names, types or notes, or any value.
+
+## Limits
+
+- An environment holds up to about 12 KB of names, values and notes. Shared with more than about 50 people, somewhat less: a save that doesn't fit is refused before anything is signed.
+- An environment can be shared with at most 64 people. "All members is 80 people" is refused: choose a smaller group or specific people.
+- Names: an environment is 1 to 64 letters, digits, `.`, `_` or `-`. An entry is letters, digits and `_`, not starting with a digit.
+- A CI job gets an environment's values only from a self-hosted runner that the environment is shared with by name ([In CI workflows](#in-ci-workflows)). On another CI service, run `dg env run` with an identity the environment is shared with.
+5:["slug","environments","d"]
+7:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();a:T1628,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["d582ba29e8e69ad479156428a084d7f20b6ecd1e",[[["",{"children":["docs",{"children":[["slug","environments","d"],{"children":["__PAGE__?{\"slug\":\"environments\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","environments","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"environments","title":"Environments","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c0ac0143def9f6bb.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This address is not a page of Dash Forge. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","$Lc",null,{"href":"/","className":"hit-area mt-4 text-dense text-forge-700 underline dark:text-forge-400","children":"Discover repos"}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null

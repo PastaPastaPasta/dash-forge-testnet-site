@@ -1,0 +1,405 @@
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","6936","static/chunks/6936-e87287636f2de846.js","6893","static/chunks/6893-7d8c5169cf8fd88e.js","121","static/chunks/app/docs/%5Bslug%5D/page-fd33617315217982.js"],"DocsView"]
+4:I[827716125,[],""]
+6:I[463262791,[],""]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3185","static/chunks/app/layout-21ed0fc3fc9dcc5b.js"],"Providers"]
+9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6434","static/chunks/6434-c83bc61d331d581b.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7601","static/chunks/app/error-37a206d254351107.js"],"default"]
+b:I[369217361,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],""]
+3:T3a26,> **Current release: [v0.2.0](https://github.com/PastaPastaPasta/dash-forge/releases/tag/v0.2.0)**
+> ([release notes](releases/v0.2.0.md), [changelog](../CHANGELOG.md)), the first published
+> release. You can also [build from source](#build-from-source) from any commit. Forge runs
+> on testnet, the tools' default network; it is not on mainnet yet. The version policy is in [VERSIONING.md](VERSIONING.md).
+
+Every release on [GitHub Releases](https://github.com/PastaPastaPasta/dash-forge/releases)
+ships prebuilt binaries, so you do not need Rust, `protoc`, or the Platform SDK source to use
+Dash Forge. Each archive contains:
+
+| File | What it is |
+|---|---|
+| `dg` | the command-line interface |
+| `git-remote-dash` | the git remote helper; git runs it for `dash://` URLs, so it must be on `PATH` |
+| `forge-relay`, `forge-import` | the relay daemon and the GitHub importer (optional) |
+| `forge-runner` | the self-hosted CI runner (optional; [guide](guides/self-host-runner.md)); not in the Windows archive |
+| `completions/` | shell completions for `dg` (bash, zsh, fish, PowerShell) |
+| `LICENSE-MIT`, `LICENSE-APACHE` | Dash Forge's own licenses: use either one |
+| `THIRD-PARTY-LICENSES` | the licenses of the open-source Rust crates built into the binaries |
+| `licenses/` | the licenses of OpenSSL (Linux archives) and of musl libc (the musl archive), which are built into those binaries |
+
+## Supported platforms
+
+| Target | Archive | Notes |
+|---|---|---|
+| `x86_64-unknown-linux-gnu` | `.tar.gz` | glibc 2.35 or newer (Ubuntu 22.04, Debian 12, RHEL 10) |
+| `aarch64-unknown-linux-gnu` | `.tar.gz` | glibc 2.35 or newer |
+| `x86_64-unknown-linux-musl` | `.tar.gz` | fully static: Alpine, older distributions, containers |
+| `x86_64-apple-darwin` | `.tar.gz` | Intel Macs; **not signed by Apple**, see [below](#macos-gatekeeper) |
+| `aarch64-apple-darwin` | `.tar.gz` | Apple silicon; **not signed by Apple** |
+| `x86_64-pc-windows-msvc` | `.zip` | Windows 10 and later; **experimental**, see [below](#windows) |
+
+Archives are named `dash-forge-<version>-<target>.tar.gz` (`.zip` on Windows). Each
+contains one directory with the same name.
+
+There is no static build for aarch64 Linux yet. On an aarch64 system with glibc older than
+2.35, [build from source](BUILDING.md).
+
+### Windows
+
+The Windows build is **experimental**. Every release builds and packages it, but clone, push and fetch over
+`dash://` have not been tested on Windows. Report what works and what does not in the
+[issue tracker](https://github.com/PastaPastaPasta/dash-forge/issues).
+
+## Install script (Linux and macOS)
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/PastaPastaPasta/dash-forge/master/install.sh | sh
+```
+
+The script works as follows. It is short, and you can
+[read it](../install.sh) before you run it.
+
+1. It detects your OS, CPU, and C library (glibc or musl).
+2. It downloads `SHA256SUMS` and your platform's archive from the latest release.
+3. It checks the archive's SHA-256. On a mismatch it stops with an error and installs
+   nothing.
+4. If the [GitHub CLI](https://cli.github.com) is installed and logged in, it also runs
+   `gh attestation verify`. This checks that the archive was built by this repository's
+   release workflow from the release tag. A failed check stops the install. **Without
+   `gh`, only the checksum is checked.** `SHA256SUMS` comes from the same place as the
+   archive, so this catches a corrupt download, not a tampered release. Beyond that, the
+   install relies on HTTPS to GitHub. The script says so when it skips the attestation
+   check. Set `DASH_FORGE_ATTESTATION=require` to make the check mandatory.
+5. It checks that the new `dg` runs on this system. Only then does it copy `dg` and
+   `git-remote-dash` into `~/.local/bin`, replacing any older copies in one step. It also
+   tells you if that directory is not on your `PATH`. If the new `dg` does not run, a
+   working install is left as it was.
+
+On Linux, glibc older than 2.35 gets the static musl build automatically.
+
+The script never runs `sudo`. You can control it with these environment variables:
+
+| Variable | Default | Effect |
+|---|---|---|
+| `DASH_FORGE_VERSION` | latest | a specific release, e.g. `0.2.0`; needed for a pre-release such as `0.2.0-rc.1`, which "latest" never picks |
+| `DASH_FORGE_INSTALL_DIR` | `~/.local/bin` | where the binaries go |
+| `DASH_FORGE_BINARIES` | `dg git-remote-dash` | add `forge-relay` / `forge-import` / `forge-runner` if you want them |
+| `DASH_FORGE_COMPLETIONS` | `0` | `1` installs bash, zsh and fish completions under `~/.local/share` and `~/.config/fish` |
+| `DASH_FORGE_ATTESTATION` | `auto` | `require` fails if `gh` cannot verify the attestation; `skip` relies on the checksum alone |
+| `DASH_FORGE_TARGET` | detected | force a target, e.g. `x86_64-unknown-linux-musl` on an old glibc |
+
+For a system-wide install, run the script with sudo yourself:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/PastaPastaPasta/dash-forge/master/install.sh \
+  | sudo DASH_FORGE_INSTALL_DIR=/usr/local/bin sh
+```
+
+Then check the install:
+
+```sh
+dg --version      # dg 0.2.0 (<commit> <target>)
+dg doctor         # git, git-remote-dash (same version as dg), network, identity
+```
+
+## Manual download and verification
+
+1. Download your platform's archive and `SHA256SUMS` from the
+   [release page](https://github.com/PastaPastaPasta/dash-forge/releases).
+2. Verify the checksum:
+
+   ```sh
+   sha256sum --check --ignore-missing SHA256SUMS          # Linux
+   shasum -a 256 --check --ignore-missing SHA256SUMS      # macOS
+   ```
+
+   ```powershell
+   # Windows: compare with the line for your archive in SHA256SUMS
+   (Get-FileHash dash-forge-<version>-x86_64-pc-windows-msvc.zip -Algorithm SHA256).Hash.ToLower()
+   ```
+
+3. Optionally, verify build provenance. The archives and `SHA256SUMS` carry GitHub
+   [artifact attestations](https://docs.github.com/actions/security-for-github-actions/using-artifact-attestations):
+   Sigstore-signed statements that say which workflow built the file, and from which
+   commit and tag. There is no project key to distribute, rotate, or leak.
+
+   ```sh
+   gh attestation verify dash-forge-<version>-<target>.tar.gz \
+     --repo PastaPastaPasta/dash-forge \
+     --signer-workflow PastaPastaPasta/dash-forge/.github/workflows/release.yml
+   ```
+
+   The checksum only shows that the download matches `SHA256SUMS`. The attestation also
+   shows that both files came from this repository's release workflow, and not from
+   whoever controls the download. It does not show that the file is the *newest* release.
+   Anyone who can edit this repository's releases could serve an older, genuinely attested
+   build. Pin `DASH_FORGE_VERSION` if that matters to you.
+
+4. Unpack the archive and put `dg` and `git-remote-dash` in a directory on your `PATH`:
+
+   ```sh
+   tar -xzf dash-forge-<version>-<target>.tar.gz
+   install -m 755 dash-forge-<version>-<target>/dg dash-forge-<version>-<target>/git-remote-dash ~/.local/bin/
+   ```
+
+   On Windows, extract the zip and add the folder to your user `Path`, or copy `dg.exe` and
+   `git-remote-dash.exe` into a folder that is already on it.
+
+## cargo binstall
+
+[cargo-binstall](https://github.com/cargo-bins/cargo-binstall) installs the same release
+archives into `~/.cargo/bin`. The crates are not on crates.io (the name `dg` there belongs to
+an unrelated project), so point binstall at this repository:
+
+```sh
+cargo binstall --git https://github.com/PastaPastaPasta/dash-forge dg git-remote-dash
+```
+
+cargo-binstall does not check `SHA256SUMS` or the attestation. It relies on HTTPS alone.
+It takes the version to download from `Cargo.toml` on `master`. Between a version-bump merge
+and the matching tag's release, that version has no archives yet, and binstall falls back to
+compiling from source. That build needs `protoc`; see [BUILDING.md](BUILDING.md).
+
+## macOS: Gatekeeper
+
+The macOS binaries are **not signed or notarized by Apple yet**. The effect depends on how
+you download them:
+
+- **install.sh, curl, or `cargo binstall`**: these do not add the quarantine attribute, so
+  Gatekeeper does not check the binaries and they run normally.
+- **A web browser**: the archive is quarantined, and the first run fails with *"dg" cannot
+  be opened because Apple cannot check it for malicious software*. After you have checked
+  the checksum (and, if you like, the attestation) as described above, remove the
+  quarantine flag from the unpacked binaries:
+
+  ```sh
+  xattr -d com.apple.quarantine dg git-remote-dash forge-relay forge-import forge-runner
+  ```
+
+Signing and notarization are planned. Until then, the checksum and attestation are how you
+confirm where a binary came from.
+
+## Shell completions
+
+```sh
+dg completions bash > ~/.local/share/bash-completion/completions/dg
+dg completions zsh  > "${fpath[1]}/_dg"            # or any directory on $fpath
+dg completions fish > ~/.config/fish/completions/dg.fish
+```
+
+```powershell
+dg completions powershell | Out-String | Invoke-Expression   # add to $PROFILE to keep it
+```
+
+The same scripts are in each archive's `completions/` directory.
+`DASH_FORGE_COMPLETIONS=1 sh install.sh` installs the bash, zsh and fish scripts for you.
+
+## Upgrading and uninstalling
+
+To upgrade, rerun the install script, or `cargo binstall` with `--force`. `dg doctor`
+reports a `git-remote-dash` whose version does not match `dg`.
+
+To uninstall, delete the binaries: `rm ~/.local/bin/dg ~/.local/bin/git-remote-dash`.
+Your configuration and identities in `~/.config/dash-forge` are left untouched.
+
+## Build from source
+
+This works from any commit and needs no release. You need Rust (the version is pinned by
+`rust-toolchain.toml`) and `protoc` 25 or newer; [BUILDING.md](BUILDING.md) has the details.
+
+```sh
+git clone https://github.com/PastaPastaPasta/dash-forge && cd dash-forge
+cargo install --locked --path crates/dg
+cargo install --locked --path crates/git-remote-dash
+```
+
+`cargo install` puts both binaries in `~/.cargo/bin`.
+
+## For maintainers: cutting a release
+
+1. Set `version` under `[workspace.package]` in `Cargo.toml` to the new version, and merge
+   that change to `master`. That PR runs the release pipeline as a dry run, because it
+   touches `Cargo.toml`. Make sure all six targets are green.
+2. Tag the merge commit `v<version>` and push the tag. `release.yml` then does the rest:
+   it builds all six targets from scratch (no build cache), runs `install.sh` against the
+   built archives, writes `SHA256SUMS`, attests the files, and publishes the release with
+   generated notes: the install and verify commands, the web app's CID, a "Networks" block
+   (the contract groups the binaries embed, read from `forge-contracts/deployments/` at the tag,
+   as `dg --version` prints them) and, if `docs/releases/v<version>.md` exists, a link to it.
+   The run fails before anything is published in two cases: the tag does not match the
+   `Cargo.toml` version, or the tagged commit is not on `master`.
+3. **Approve three times.** Three jobs use the protected `release` environment, and each
+   waits for a reviewer: `attest + publish` (the GitHub Release), then, after it succeeds,
+   `push forge-relay image` (pushes `ghcr.io/<owner>/forge-relay:<version>`, and `:latest`
+   for a non-pre-release, built from the checksummed musl archive) and
+   `push forge-gateway image` (pushes `ghcr.io/<owner>/forge-gateway:<version>`, and
+   `:latest` for a non-pre-release, built from the tagged source, with a build provenance
+   attestation stored next to it; its job summary prints the digest to deploy by, see
+   [Deploy a release](hosting/forge-gateway.md#deploy-a-release)). Approving only the first
+   publishes the release without the images; the image jobs can be approved later from the
+   same run. After the first push of each image, make the package public (owner, once:
+   GitHub → Packages → forge-relay / forge-gateway → Package settings → Change visibility):
+   ghcr creates new packages private, so `docker pull` and `gh attestation verify oci://…`
+   fail for everyone else until then.
+4. **Record the web app on Forge (owner, by hand).** The release also carries the web app's
+   reproducible IPFS build (`forge-web-<version>.car` and `.cid`, built on two runners that
+   must agree). Writing the matching Forge release on Forge's own mirror needs the owner's
+   Platform identity, which CI never holds: reproduce the CID locally and run
+   `dg release create` with the two files, as
+   [Verify the app you loaded](guides/verify-the-app.md#for-maintainers-publishing-the-forge-release)
+   shows.
+
+**If the run fails on a flake, re-run the failed jobs first.** On the tag's run page,
+"Re-run failed jobs" repeats only what failed (a dropped crates connection, a macOS runner
+timeout) and keeps the built archives. Do that before anything else.
+
+**Emergency release without the web CAR.** A fix to `dg` must not wait on the web app's
+IPFS build. If the `web app (IPFS)` job keeps failing and the fix cannot wait, a maintainer
+can run the release without it: Actions → Release → Run workflow, on the `v<version>` tag,
+with `dry_run` off and `skip_ipfs` on (`gh workflow run release.yml --ref v<version> -f
+dry_run=false -f skip_ipfs=true`). It publishes the binaries, `SHA256SUMS` and the images as
+usual, behind the same approvals, but no `forge-web-<version>.*` files, and the release notes
+say that this release has no web app build. A dispatch runs the tag's own copy of the
+workflow, so the tag must have been cut after `skip_ipfs` was added. A tag push never skips
+the web build. Do not use this for a flake: re-run it first. Ship the web CAR with the next
+release, and do not record a Forge release for the web app of a tag that has none.
+
+The dry run also runs on a PR that touches `Cargo.toml`, `Cargo.lock`, `rust-toolchain.toml`,
+a crate's `Cargo.toml` or `build.rs`, `install.sh`, `build-support/`, the gateway Dockerfile, `release.yml` or
+`web-ipfs.yml`. A PR that changes only crate source does not trigger it: the six-platform build
+takes about an hour, so after a merge to `master` that touches `crates/` or any of those files
+the same dry run builds every target. It builds and packages every target and uploads the
+archives as workflow artifacts. It never attests anything or creates a release. Once
+`release.yml` is on `master`, you can also
+start one by hand: `gh workflow run release.yml --ref <branch> -f dry_run=true`.
+
+**One-time repository setup (admin).** The workflow only publishes from `master` commits,
+but the tag itself and the `release` environment are protected in the repository settings:
+
+- Settings → Environments → `release`: add required reviewers, and a deployment rule that
+  allows only tags matching `v*`.
+- Settings → Rules → Rulesets: a tag ruleset for `v*` that restricts creating, updating
+  and deleting those tags to maintainers.
+5:["slug","install","d"]
+7:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();a:T1628,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["d582ba29e8e69ad479156428a084d7f20b6ecd1e",[[["",{"children":["docs",{"children":[["slug","install","d"],{"children":["__PAGE__?{\"slug\":\"install\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","install","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"install","title":"Installing Dash Forge","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c0ac0143def9f6bb.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This address is not a page of Dash Forge. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","$Lc",null,{"href":"/","className":"hit-area mt-4 text-dense text-forge-700 underline dark:text-forge-400","children":"Discover repos"}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null

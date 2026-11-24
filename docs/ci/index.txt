@@ -1,0 +1,295 @@
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","6936","static/chunks/6936-e87287636f2de846.js","6893","static/chunks/6893-7d8c5169cf8fd88e.js","121","static/chunks/app/docs/%5Bslug%5D/page-fd33617315217982.js"],"DocsView"]
+4:I[827716125,[],""]
+6:I[463262791,[],""]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3185","static/chunks/app/layout-21ed0fc3fc9dcc5b.js"],"Providers"]
+9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6434","static/chunks/6434-c83bc61d331d581b.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7601","static/chunks/app/error-37a206d254351107.js"],"default"]
+b:I[369217361,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-b9333c202344128b.js","6380","static/chunks/6380-f00497d715c1da3f.js","4613","static/chunks/4613-f8998ccda2379e05.js","2391","static/chunks/2391-f9f0e5a8e3b11cf6.js","6434","static/chunks/6434-c83bc61d331d581b.js","4811","static/chunks/4811-68a5bbb98917cc59.js","3089","static/chunks/3089-a2cf8fee6100af8f.js","3695","static/chunks/3695-e7d47217649bf2a1.js","7361","static/chunks/7361-0dd78e0a49cf2bc4.js","9160","static/chunks/app/not-found-5e43995cd36c12ad.js"],""]
+3:T6085,Forge has no CI service of its own. Any CI can report results on Forge: GitHub Actions, GitLab CI, a shell script on your laptop, or a runner you host. It writes **check runs**, small on-chain documents that say "check `build` on commit `5950173` passed", and the web app and `dg` show them on the commit page, on a pull request's Checks tab and in the merge box.
+
+Every check run is signed by an identity the repository trusts. Nothing is trusted because of where it came from:
+
+- **Consensus checks the writer.** Platform accepts a `checkRun` only from a current **runner**, **maintainer** or **writer** of the repository. It refuses anyone else's with code 40120.
+- **Readers check again.** A run counts only while its reporter still holds that role. Revoke a runner, and its runs are still listed but no longer count ("reporter is no longer a member or runner: not counted").
+- **A runner key can sign nothing else.** `dg ci runner new` registers a key bound to the `checkRun` document type, with a budget and an expiry. If it leaks, it can only post check runs, only to repositories where its identity is a runner, and only until the budget or the expiry ends.
+
+The design is in [platform-parity-spec §2](../design/platform-parity-spec.md#2-ci--actions-design).
+
+## Enrol a runner
+
+A runner is an identity of its own. Mint one for CI with `dg auth new --backup-file runner.json` and a small deposit, since it pays for its own reports. Do this on your own computer, not in a CI job. `dg auth new` makes the new identity this computer's default, so sign back in as the repository owner (`dg auth login <your identity file>`), or pass `--identity` for the next command. Then, as the owner:
+
+```sh
+dg ci runner new alice/project --runner runner.json -o runner.dfk1 \
+    --identity ~/owner.identity.json      # only if you did not sign back in as the owner
+```
+
+This does two things:
+
+1. **Registers a key on the runner identity**, signed once with the runner's master key from `runner.json`. The key is AUTHENTICATION / HIGH, bound to `(forge-collab, checkRun)`, with a 0.5 DASH budget and a 365-day expiry (`--budget`, `--expires` change them).
+2. **Enrols the identity as a runner** of `alice/project`: a forge-core `runner` document that only the owner can write.
+
+The key is written to `runner.dfk1` (0600, unencrypted) *before* it is registered, so a key that nobody holds is never registered. Put the file's contents in your CI's secret store as `DASH_FORGE_KEY`, then delete the file.
+
+**Secrets never go to a log.** `dg` prints a secret it made only on a terminal, and never in `--json` output or when a CI variable (`CI`, `GITHUB_ACTIONS`, …) is set. Anywhere else it writes the secret to a new file you name (0600; an existing file is refused), prints only the path, or refuses before it creates anything:
+
+| Secret | In a terminal | Scripted, piped or in CI |
+|---|---|---|
+| Recovery phrase (`dg auth new`) | shown once, then the three-word check (`--skip-backup-check` skips only the check, and needs `--backup-file`) | only in `--backup-file <new file>`, sealed under `DASH_FORGE_PASSPHRASE` (unsealed with `--reveal-secrets`); refused without it |
+| Runner key (`dg ci runner new`, `dg auth export`) | only in a new file (`-o`); only the path is printed | the same |
+| Webhook secret (`dg webhook add`) | shown once | only in `--secret-file <new file>`, or your own via `--secret-env`; refused without either |
+
+`dg auth export --format dfk1 --reveal-secrets -o -` prints this computer's limited key on stdout, for piping straight into a secret store (`| gh secret set DASH_FORGE_KEY`). That key can sign any Forge document within its budget; it is not a runner key, so use `dg ci runner new` for check runs. It is refused with `--json` and when a CI variable is set. Never run it where stdout is a log.
+
+In a terminal, a passphrase-sealed key and a sealed `runner.json` are each asked for. In a script, `DASH_FORGE_PASSPHRASE` opens your key and `DASH_FORGE_RUNNER_PASSPHRASE` opens `runner.json` (it falls back to `DASH_FORGE_PASSPHRASE`); a wrong one is [`E303`](../errors.md#e303) naming the file.
+
+`dg auth status` and `dg doctor` with the runner key describe it as bound to `checkRun` documents only (a CI runner key), with its budget and expiry.
+
+Other commands:
+
+| Command | Does |
+|---|---|
+| `dg ci runner add <repo> <identity>` | enrols an identity that already has a key (one you keyed yourself); `<identity>` is an id or a DPNS name |
+| `dg ci runner list <repo>` | lists the repository's runners |
+| `dg ci runner revoke <repo> <identity>` | deletes the membership; the runner's next report is refused at consensus, and its old runs stop counting |
+
+Without `--runner`, `dg ci runner new` puts the key on your own identity (it asks for your master key once). As the owner you are a maintainer, so no enrolment is needed. That suits a single-developer setup, but it gives up the separate identity.
+
+## Report a check run
+
+```sh
+export DASH_FORGE_KEY="$(cat runner.dfk1)"   # in CI: from the secret store
+SHA=$(git rev-parse HEAD)
+dg ci report alice/project --sha "$SHA" --name build --status queued \
+    --details-url "https://ci.example/runs/42"
+dg ci report alice/project --sha "$SHA" --name build --status in_progress
+dg ci report alice/project --sha "$SHA" --name build --status completed \
+    --conclusion success --summary "412 tests passed" --log build.log --storage my-r2
+```
+
+- **The network comes with the key.** A `dfk1:` key records its network (`dfk1:testnet:…`), and `dg` uses it when nothing else names one, so a fresh CI machine needs no `--network` flags. In a checkout of a `dash://` clone, the network the clone pinned wins; `DASH_FORGE_NETWORK` takes the same form `dg` prints (`testnet`, or `devnet-<name>` for a devnet).
+- **The first report creates the run; the next ones update it in place.** An update is a replace of your own open run with that name on that commit. Once a run is `completed`, reporting the same name again (without `--external-id`) starts a new run, a re-run, which becomes the run shown; `dg` says so before you confirm.
+- **`--external-id <your CI's run id>`** ties reports to one run: a report updates the run carrying that id while it is open, and never starts a second one for it. Once that run completed, the same result again changes nothing, and a report that would change it (another conclusion, or a status that starts it over) is refused with [E604](../errors.md#e604) before anything is signed: a completed run is final, so report a re-run with a new id. If no run carries the id yet, `dg` reads once more a few seconds later before it creates one, so a report sent right after the first does not split the run. Use it whenever your CI has a run id (the GitHub Action passes `gh:<run id>:<attempt>:<job>:<name>`).
+- **What an update keeps.** A field the report does not give keeps its stored value. The start time, the completion time and the conclusion are set once and never move, so a re-queue (`--status queued`) of a run that started is a new run (or, with `--external-id`, refused with E604).
+- **`--status`** is `queued`, `in_progress` or `completed`. A completed run needs a `--conclusion`: `success`, `failure`, `neutral`, `cancelled`, `skipped`, `timed_out`, `action_required` or `stale` (GitHub's set). `dg` refuses a wrong combination before it signs anything, and so does the contract.
+- **`--log <file>`** uploads the log to your storage profile (after you confirm the report). It is content-addressed, the same way a release asset is (see [Bring your own storage](bring-your-own-storage.md)), and the run records the log's URL and SHA-256. The web app downloads the log from your bucket and shows it only if its bytes hash to the recorded SHA-256; otherwise it says the bytes are not the reported log. Log bytes never go on Platform. The bucket needs CORS for the web app's origin, like any bucket the browser reads.
+- **`--artifact <file>`** (repeatable, at most 10) uploads a file the run produced to the same storage, content-addressed, and records it in the run's `artifacts`: its name, size, SHA-256 and URL, in the shape of a release's assets. The field holds 4,096 bytes, about a dozen entries; one that does not fit is uploaded but not recorded, with a warning. The web app lists them on the Checks tab and saves one only if its bytes hash to the recorded SHA-256, as it does a release asset. Archive a directory into one file first (forge-runner zips each `actions/upload-artifact` artifact).
+- **`--summary`** (or `--summary-file`) takes up to 1,000 characters.
+- `dg` prints the commit's web page, where the run shows up.
+
+`dg ci status alice/project <sha>` (or `--sha <sha>`, as `dg ci report` takes it) lists one run per name on a commit. Inside a clone the commit can be anything `git rev-parse` takes (`HEAD`, a branch, an abbreviated id), and `dg ci status` alone reads the clone's `HEAD`; `dg ci report --sha` takes the same forms. It lists the newest run by a current member or runner, which is the one a merge counts (unless the branch policy pins that check to another source: the run is then marked as not counted, and `dg ci report` warns before reporting it). A newer run by anyone else is not shown in its place. `dg pr checks alice/project <n>` does the same for a pull request's head, and also lists each check the branch policy requires that no counted run decides (`? build expected (required from …)`). Like `gh pr checks`, it exits 1 (E104) when a counted or required check failed, and 8 (E804) while a required check is missing or pending, so a CI gate can run it.
+
+For each name, the newest run by `($createdAt, $id)` among runs by current members and runners decides. A branch policy with `requireChecks` needs every such run on the head to pass (`success`, `neutral` or `skipped`), and at least one to exist; a policy that names required checks needs each named one to pass, `requireChecks` or not. To name the required checks from the command line, `dg repo policy set <owner>/<repo> --required-check build --required-check lint` (repeat it per check; `--required-check build=@ci-runner` pins a check to the runner or maintainer whose runs count, and then every check needs one). The web merge box and `dg pr merge` apply the same rule; a maintainer can bypass it ("bypass rules" in the web, `--override-policy` in `dg`), and the bypass is recorded on the PR as an event nobody can delete.
+
+## Re-run checks
+
+A maintainer or writer can ask the repository's runners to run a pull request's checks again, as GitHub's "Re-run" does:
+
+- **In the web app**, on the PR's **Checks** tab: **Re-run** beside a completed check reported by forge-runner, or **Re-run all checks**. The tab then shows "Re-run requested" until a newer run of that check is reported, to everyone, and reads the runs again every 30 seconds meanwhile. A request no run answers within 10 minutes (no runner took it: runners handle each request once) says "no run yet" and Re-run is offered again. A run left queued or in progress for 2 hours (its runner stopped mid-job) is offered too.
+- **From the command line**: `dg ci rerun alice/project 12` for every check, or `--check "ci / build (pull_request)"` for one (`dg pr checks` lists the names). `--sha <commit>` refuses the request if the PR's head is no longer that commit.
+
+A request is one `event` on the PR (kind 26, [forge-v2.md §3.3](../contracts/forge-v2.md#33-ci-re-run-requests-kind-26)), which no one can delete: 59,660,580 credits (about 0.0006 DASH) for one check on a Platform v5 devnet (2026-10-02, Platform 5.0.0-beta.1); `dg` and the web app show an upper bound before you sign. It names the PR's head, the repository (so runners find it with one query) and the check. [forge-runner](self-host-runner.md#re-runs) reads the requests on every poll, or within seconds when the owner's relay wakes it, and runs the workflow that reports the check again on the head; the new run replaces the one shown. `dg ci reruns alice/project [--since <ms>]` lists the requests and whether each counts.
+
+- **Who can ask.** The owner, maintainers and role-1 writers. Platform also admits a triage member's request (the contract's `t_triageKinds` does not name kind 26), but no reader counts it: `dg` and the web app refuse it before signing, and runners ignore one.
+- **What can be re-run.** An open PR's current head only: runners run nothing for a head that moved. Checks reported from elsewhere (the GitHub Action, a script) are re-run there; the web app offers Re-run only on forge-runner's runs.
+
+## Members-only branches
+
+A check run is public: anyone reads its commit, name, status and conclusion. On a members-only branch (`dg branch new --members`, [private-repos §19](../security/private-repos.md#19-members-only-branches-and-pull-requests)) a run must not show the branch's commit, its check names or its log, so it is reported differently ([private-repos §19.9](../security/private-repos.md#199-check-runs-on-members-only-branches)):
+
+- **Reporting.** `dg ci report alice/project --members-branch sec/fix --sha <commit> --name "ci / build" --status completed --conclusion success --log build.log --storage ci-logs` reports on the commit's blind (the value the branch's update shows the public instead of the commit) under a 16-character name only members can read. The run carries no summary, details link, run id or artifacts. The log, or without `--log` a short one naming the check, is uploaded so that only members can open it; the public can fetch it but reads nothing. You need your encryption key and the members key (a member's identity file, not a runner key). [forge-runner](self-host-runner.md#members-only-branches) does this for you with `members_branches = true`.
+- **Reading, as a member.** `dg ci status alice/project <commit>` lists the runs of a members-only branch's commit by their real names, marked members-only. `dg ci log alice/project <commit> "ci / build"` prints a run's log (`-o <file>` writes it), for any run, public or members-only.
+- **Reading, as anyone else.** The runs show under their 16-character names on the blind, with their outcomes; nothing names the branch or the commit.
+- **Pull requests.** A members-only pull request from a members-only branch shows its runs in its Checks as for any PR (they are reported on the head it shows); members read their names.
+
+## What it costs
+
+Measured on devnet bonsia (2026-09-30, drive 4.2.0-beta.7; 1 DASH = 10¹¹ credits):
+
+| Write | Who pays | Credits | DASH |
+|---|---|---|---|
+| Register the runner key (identity update) | the runner | 43,008,000 | 0.00043 |
+| Enrol the runner (`runner` document) | the owner | 47,298,000 | 0.00047 |
+| First report of a run (`checkRun` create) | the reporter | 81,508,000 – 95,093,000; a repository's first 121,929,000 | 0.00082 – 0.00095; the first 0.00122 |
+| Each later update (replace) | the reporter | 4,651,000 – 5,546,420 | ≈ 0.00005 |
+
+The create's price depends on the fields it carries (a details URL, a summary, artifacts, a log's URL and hash), and a repository's first check run pays more: it opens the check-run indexes. A typical run is one create plus two updates, about **0.001 DASH**, so a 0.5 DASH runner key covers roughly 500 runs. The log itself costs nothing on Platform: it goes to your bucket. On devnet moutai (drive 4.2.0-beta.6, 2026-09-29) the same writes cost less: the key 0.000285, the enrolment 0.000458, a create 0.00055–0.00078 (0.00059 with `--log`) and an update ≈ 0.000035 DASH.
+
+Before it signs, `dg` shows an upper bound over these numbers: 0.0005 DASH for the key, 0.00055 for the enrolment, 0.0013 for a create and 0.00008 for an update, plus 27,700 credits (0.000000277 DASH) per byte of the text the report carries (name, details URL, summary, external id, artifacts; a log adds its URL and hash). The contract admits up to ~7 KB of that text, so a report with a full summary, artifacts and a log is quoted up to ~0.002 DASH more. It reads the commit's runs first, so the prompt names the write that will happen (create or update). After the write it prints what was actually charged.
+
+## Security
+
+- **Keys.** Give CI a runner key, never your identity file: the file holds your master key. The runner key's bounds are enforced by consensus. Anything else it signs is refused with `ContractBoundedKeyOutOfBoundsError` (20014), which `dg` reports as [E302](../errors.md#e302) before anything is broadcast. The key cannot register keys, move credits or write any other document type. The budget and the expiry cap the damage from a leak. `DASH_FORGE_KEY=runner.json dg auth keys disable <id> --master runner.json` retires the key early (it signs as the runner identity, whose key it is), and `dg ci runner revoke` removes the identity's standing on the repo.
+- **What a runner can do.** It can write check runs on *any* commit id of the repositories it runs for, including commits that are not in the repository. Readers match runs to commits by id, so a run on a stranger's commit shows nowhere. A runner cannot edit or delete another identity's run.
+- **What is public.** Check runs are plaintext on chain: name, status, summary, details URL, log URL. See [private-repos §7](../security/private-repos.md#7-metadata-that-stays-visible). Do not put secrets or private code in summaries.
+- **Check runs of a private repository.** forge-community refuses a private repository's run that carries a summary, details URL, log, artifacts or external id. `dg ci report` leaves them out with a warning and records only the name, status, conclusion and times; `--log` and `--artifact` files are not uploaded, and `--public-log` no longer does anything. Without an external id, a report updates your open run of the same name on that commit, so two jobs that report the same name on the same commit at once (a push and a pull request run, or two branches) share one run: give them different names. The check's name stays public, so do not put secrets in it.
+- **URLs.** `--details-url` must be `https://` (an IP host is accepted, unlike a webhook URL — see [Webhooks and CI](collaborating.md#webhooks-and-ci)). A log's storage must record an https address (an S3 bucket's https `public_url`) or an `ipfs://` one: `dg` refuses a plain-http or private bucket before uploading.
+- **A home-NAS or self-hosted log server needs TLS before you can use `--log` at all.** `dg ci report --log` checks the storage profile's `public_url` first and refuses, before uploading anything, if none of the profile's targets record an https or `ipfs://` address ("the log's storage gives no https or IPFS address"). If your storage is a self-hosted MinIO, a NAS's built-in S3 endpoint, or anything else on your own network (see [Bring your own storage](bring-your-own-storage.md) and the [home-NAS storage guide](home-nas-storage.md)), put a real TLS terminator in front of it on a domain you control — a named Cloudflare Tunnel, or a reverse proxy such as [Caddy](https://caddyserver.com/) — and only then run `dg storage add … --public-url https://…` (or edit an existing profile) to record that https address. A Tailscale-only name doesn't help here: it isn't reachable by a browser outside your tailnet, so a log linked from a public check run would not load for anyone else, the same reason it is refused for pack storage ([Public addresses](bring-your-own-storage.md#public-addresses)). Claiming an https `public_url` for a bucket that is actually still serving plain http breaks the same way: the web app fetches the literal recorded URL, and every reader's browser refuses that fetch, not just yours.
+- **Reading a log in the browser.** The web app fetches a log only over https (plain http only from a page served on the same machine, for local tests), without cookies or a referrer, gives up after 30 seconds, and stops reading at 32 MiB.
+- **Verifying a log or an artifact.** The SHA-256 on chain pins the bytes. Whoever controls the bucket can delete a log or an artifact, but cannot swap it for another without the web app noticing. Artifacts are as public as logs: anyone can download them from the bucket.
+
+## Limits of the current contract
+
+These are what the protocol and the current forge-collab contract allow. They are verified against Platform v4.2.0-beta.6.
+
+- **A key can be bound to `checkRun` only.** Protocol 14 admits `SingleContractDocumentType` bounds on AUTHENTICATION keys (`validate_identity_public_key_contract_bounds` v2), and consensus enforces them per batch member (`ContractBounds::check_batched_transition`).
+- **The contract does not say *which* identity may report, beyond "runner, maintainer or writer".** It cannot require that only runners write `checkRun`, and it has no status-transition rule, such as "no `queued` after `completed`". The one rule it has is that a conclusion is present exactly when the status is `completed`. Clients follow the newest-run rule. [ci-contract-wishes.md](../design/ci-contract-wishes.md) lists what the next registration should add.
+- **A check run is not tied to a pushed commit.** Consensus cannot check that `headOid` exists in the repository: packs live off-chain.
+
+## Self-host a runner
+
+[`forge-runner`](self-host-runner.md) watches a repository, runs `.forge/workflows/*.yml` (GitHub Actions syntax) with [nektos/act](https://github.com/nektos/act) in Docker on every push and pull request, and reports each job through `dg ci report` with its log. It polls; [your own relay can wake it](self-host-runner.md#wake-it-from-your-relay) within seconds of a push.
+
+**The security boundary is the Docker daemon you give the runner.** Give it a daemon of its own: rootless, sysbox, or a Docker-in-Docker sidecar over TLS. Never the host's socket. On top of that, the runner:
+
+- **Refuses workflow options that reach past the container.** A job that sets docker options or mounts (`container.options` / `volumes`, the same on `services`), or calls a reusable workflow, is refused unless the repository allows it.
+- **Keeps the daemon's socket out of jobs,** and puts jobs on the `bridge` network, not the host's.
+- **Hands secrets and a `GITHUB_TOKEN` to trusted refs only.** Other runs get an empty token, and secret values are redacted from logs before upload.
+- **Gives a job its `environment:`'s values** only on a trusted run, only when the environment is shared with the runner's identity by name, and only to the jobs that name it ([Environments](self-host-runner.md#environments)).
+- **Clears act's environment,** so `DASH_FORGE_KEY` never reaches act or a job, and ignores act configuration planted in the checkout.
+- **Follows GitHub's fork-PR model:** a pull request runs with the secrets only when its head is a trusted branch of the repository itself and its author the owner or a maintainer; a fork's or a non-member's PR runs with no secrets and an empty token, and by default a non-member's PR does not run at all ([Pull requests](self-host-runner.md#pull-requests)).
+
+[Self-host a CI runner](self-host-runner.md#security) has the details.
+
+## Report from GitHub Actions
+
+A repository mirrored from GitHub keeps its CI on GitHub. The [check action](../../check-action/README.md) reports each GitHub job's result as a Forge check run on the same commit (a mirror is the same git history, so the commit ids match; a pull request run reports on the PR head):
+
+```yaml
+      - name: Report to Dash Forge
+        if: always()
+        uses: PastaPastaPasta/dash-forge/check-action@v0.2.0   # installs the v0.2.0 dg
+        with:
+          repo: <owner identity id>/project
+          job-status: ${{ job.status }}
+          network: testnet          # Forge runs on testnet (the default)
+        env:
+          DASH_FORGE_KEY: ${{ secrets.FORGE_RUNNER_KEY }}      # from `dg ci runner new`
+```
+
+Pinned to a release tag, the action downloads that release's checksum-verified `dg` in seconds, on Linux and macOS runners. To run code that is not in a release, pin a commit you have reviewed and set `install: 'source'`: the action then builds `dg` from its own source, the ref after `@` in `uses:`. That works on Linux runners only and takes a few minutes in every job that reports, so report from one Linux leg, or from one summary job that `needs:` the others. The [check action's README](../../check-action/README.md#quick-start) has the details. The check is named `<workflow> / <job>`, and each matrix leg is its own check. The check run's details link goes back to the GitHub run. A failed report warns and passes by default, so a Forge outage never fails your CI. A pull request from a fork has no access to the secret and does not report: do not use `pull_request_target` to give it one.
+5:["slug","ci","d"]
+7:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();a:T1628,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["d582ba29e8e69ad479156428a084d7f20b6ecd1e",[[["",{"children":["docs",{"children":[["slug","ci","d"],{"children":["__PAGE__?{\"slug\":\"ci\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","ci","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"ci","title":"CI and check runs","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/c0ac0143def9f6bb.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This address is not a page of Dash Forge. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","$Lc",null,{"href":"/","className":"hit-area mt-4 text-dense text-forge-700 underline dark:text-forge-400","children":"Discover repos"}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null
