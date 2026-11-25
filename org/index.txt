@@ -1,0 +1,132 @@
+2:I[244662250,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-8379a591156d1d00.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-8f0f112dd9636f91.js","9675","static/chunks/9675-d1ff713a45233020.js","126","static/chunks/126-c8e93fbf40b175bb.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-4bff5a3826de2a03.js","8251","static/chunks/8251-ea8650e6586acd02.js","5450","static/chunks/app/org/page-2072f6cfaad9e1d0.js"],"QueryPage"]
+3:I[650986321,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-8379a591156d1d00.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-8f0f112dd9636f91.js","9675","static/chunks/9675-d1ff713a45233020.js","126","static/chunks/126-c8e93fbf40b175bb.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-4bff5a3826de2a03.js","8251","static/chunks/8251-ea8650e6586acd02.js","5450","static/chunks/app/org/page-2072f6cfaad9e1d0.js"],"OrgClient"]
+4:I[827716125,[],""]
+5:I[463262791,[],""]
+7:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-8379a591156d1d00.js","1047","static/chunks/1047-69163f4da88cac9b.js","9675","static/chunks/9675-d1ff713a45233020.js","126","static/chunks/126-c8e93fbf40b175bb.js","3185","static/chunks/app/layout-b957dec524f884fe.js"],"Providers"]
+8:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-8379a591156d1d00.js","6998","static/chunks/6998-1b0acbbb998b723b.js","9675","static/chunks/9675-d1ff713a45233020.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","7601","static/chunks/app/error-f5e3a347e59bf6fd.js"],"default"]
+a:I[78629786,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-8379a591156d1d00.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-8f0f112dd9636f91.js","9675","static/chunks/9675-d1ff713a45233020.js","126","static/chunks/126-c8e93fbf40b175bb.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-4bff5a3826de2a03.js","9160","static/chunks/app/not-found-eb355f3909233c8c.js"],"AppShell"]
+b:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-8379a591156d1d00.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-8f0f112dd9636f91.js","9675","static/chunks/9675-d1ff713a45233020.js","126","static/chunks/126-c8e93fbf40b175bb.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-4bff5a3826de2a03.js","9160","static/chunks/app/not-found-eb355f3909233c8c.js"],""]
+6:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();9:T162e,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","org","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["b97bf144be155250176c0cad30a9b6ea2a4b1559",[[["",{"children":["org",{"children":["__PAGE__",{}]}]},"$undefined","$undefined",true],["",{"children":["org",{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"children":["$","$L3",null,{}]}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","org","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/e492ce627d8441fb.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$6"}}]]}],["$","body",null,{"children":[["$","$L7",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$8","errorStyles":[],"errorScripts":[],"template":["$","$L5",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$9"}}],["$","$La",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This page doesn't exist. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","div",null,{"className":"mt-5 flex flex-wrap items-center justify-center gap-2.5","children":[["$","$Lb",null,{"href":"/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap bg-forge-700 text-white hover:bg-forge-800 dark:bg-forge-700 dark:hover:bg-forge-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Go home"}],["$","$Lb",null,{"href":"/explore/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap border border-anvil-300 bg-transparent text-anvil-800 hover:bg-anvil-100 dark:border-anvil-700 dark:text-anvil-100 dark:hover:bg-anvil-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Explore repos"}]]}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Lc",null]]]]
+c:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null
