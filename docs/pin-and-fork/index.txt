@@ -1,0 +1,169 @@
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-2d0f69d37e1cab95.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-56f42f8043b78974.js","6936","static/chunks/6936-bc34db1b91d47914.js","6893","static/chunks/6893-2650ad2f61bfdfd2.js","121","static/chunks/app/docs/%5Bslug%5D/page-e68ff5d90b8fdeb8.js"],"DocsView"]
+4:I[827716125,[],""]
+6:I[463262791,[],""]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","5972","static/chunks/5972-57f73931115cc806.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-2d0f69d37e1cab95.js","1183","static/chunks/1183-2364e7739291395a.js","8180","static/chunks/8180-f491867676f45879.js","3185","static/chunks/app/layout-ad5dddcac29ff43f.js"],"Providers"]
+9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","6998","static/chunks/6998-1b0acbbb998b723b.js","9675","static/chunks/9675-d91e997938d83168.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","7601","static/chunks/app/error-f5e3a347e59bf6fd.js"],"default"]
+b:I[78629786,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-2d0f69d37e1cab95.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-56f42f8043b78974.js","9160","static/chunks/app/not-found-86bc8cb0ac5326e6.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-2d0f69d37e1cab95.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-56f42f8043b78974.js","9160","static/chunks/app/not-found-86bc8cb0ac5326e6.js"],""]
+3:Tad5,Two ways to keep someone else's repository on storage you run:
+
+- **Fork** it to get your own copy you can push to. The parent's packs are copied to your storage, and your copy is listed first.
+- **Pin** it to help host it without taking it over. Your storage keeps a copy of every pack, and a pack mirror record tells readers where it is. If the repository's own storage goes away, `git clone` still works from your copy.
+
+Both need storage that other people can read: an IPFS node (yours from `dg ipfs up`, or one on a NAS or server, see [Run your own backend](self-host-backend.md)), or a bucket with a public URL. A bucket with no public URL works for a fork you read yourself, but not for a pin. Platform storage needs neither: it is already permanent.
+
+## On the web
+
+On a repository page, **Fork** and **Pin** sit side by side. Pin shows how many files it will copy, the space they take, and the fee for the records, then copies them in your browser. Once the copy is done the button says **Pinned**. After new pushes it says **Update pin (N new)**, and one click copies just the new packs. If you have no storage yet, the dialog's button is **Set up storage**.
+
+## From the terminal
+
+```sh
+dg repo pin <owner>/<name>                    # copy and record, after showing the cost
+dg repo pin <owner>/<name> --storage nas      # choose the profile
+dg repo pin <owner>/<name> --follow           # also copy later pushes …
+dg repo pin --all                             # … whenever this runs (cron, a systemd timer)
+dg repo unpin <owner>/<name>                  # delete your records; files stay on your storage
+
+dg repo fork <owner>/<name> --storage nas     # fork, copying the parent's packs
+dg repo sync <you>/<name>                     # bring the fork up to date, copying new packs
+```
+
+Without `--storage`, both commands use the first profile in your storage policy (`dg storage use`) that others can read. A pin also falls back to your only such profile. `dg repo fork --no-copy` forks by reference, as before: the fork reads the parent's storage.
+
+## What it costs
+
+- **Copying** is free on Platform: it only uses your own disk or bucket.
+- **A pin** writes one pack mirror record per pack: `dg` quotes up to 0.00075 DASH each (measured about 0.0005, 0.0006 for a repository's first). `dg repo unpin` deletes them and refunds most of that, as its prompt says (on testnet, less as the records age; see [Refunds](costs.md#refunds)).
+- **A fork** costs what it did before, plus a few bytes for each extra address in its manifests.
+
+## Private repositories
+
+Readers never use pinned copies of a private repository. A member can still keep an encrypted backup on their IPFS node with `dg ipfs pin`.
+
+How it works: [design note](../design/pin-and-fork-copies.md).
+5:["slug","pin-and-fork","d"]
+7:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();a:T162e,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","org","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["d520d481c4ac4be7dc4cc9c968f262247a29a4ea",[[["",{"children":["docs",{"children":[["slug","pin-and-fork","d"],{"children":["__PAGE__?{\"slug\":\"pin-and-fork\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","pin-and-fork","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"pin-and-fork","title":"Pin or fork a repository","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/435131af2a70def1.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This page doesn't exist. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","div",null,{"className":"mt-5 flex flex-wrap items-center justify-center gap-2.5","children":[["$","$Lc",null,{"href":"/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap bg-forge-700 text-white hover:bg-forge-800 dark:bg-forge-700 dark:hover:bg-forge-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Go home"}],["$","$Lc",null,{"href":"/explore/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap border border-anvil-300 bg-transparent text-anvil-800 hover:bg-anvil-100 dark:border-anvil-700 dark:text-anvil-100 dark:hover:bg-anvil-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Explore repos"}]]}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null

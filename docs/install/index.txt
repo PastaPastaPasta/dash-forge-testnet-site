@@ -1,18 +1,19 @@
-2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-32b717ddb4c8ef60.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-56f42f8043b78974.js","6936","static/chunks/6936-bc34db1b91d47914.js","6893","static/chunks/6893-2650ad2f61bfdfd2.js","121","static/chunks/app/docs/%5Bslug%5D/page-e68ff5d90b8fdeb8.js"],"DocsView"]
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-2d0f69d37e1cab95.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-56f42f8043b78974.js","6936","static/chunks/6936-bc34db1b91d47914.js","6893","static/chunks/6893-2650ad2f61bfdfd2.js","121","static/chunks/app/docs/%5Bslug%5D/page-e68ff5d90b8fdeb8.js"],"DocsView"]
 4:I[827716125,[],""]
 6:I[463262791,[],""]
-8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","5972","static/chunks/5972-57f73931115cc806.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-32b717ddb4c8ef60.js","1183","static/chunks/1183-2364e7739291395a.js","8180","static/chunks/8180-f491867676f45879.js","3185","static/chunks/app/layout-ad5dddcac29ff43f.js"],"Providers"]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","5972","static/chunks/5972-57f73931115cc806.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-2d0f69d37e1cab95.js","1183","static/chunks/1183-2364e7739291395a.js","8180","static/chunks/8180-f491867676f45879.js","3185","static/chunks/app/layout-ad5dddcac29ff43f.js"],"Providers"]
 9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","6998","static/chunks/6998-1b0acbbb998b723b.js","9675","static/chunks/9675-d91e997938d83168.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","7601","static/chunks/app/error-f5e3a347e59bf6fd.js"],"default"]
-b:I[78629786,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-32b717ddb4c8ef60.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-56f42f8043b78974.js","9160","static/chunks/app/not-found-86bc8cb0ac5326e6.js"],"AppShell"]
-c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-32b717ddb4c8ef60.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-56f42f8043b78974.js","9160","static/chunks/app/not-found-86bc8cb0ac5326e6.js"],""]
-3:T37a5,> **Current release: [v0.2.0](https://github.com/PastaPastaPasta/dash-forge/releases/tag/v0.2.0)**
+b:I[78629786,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-2d0f69d37e1cab95.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-56f42f8043b78974.js","9160","static/chunks/app/not-found-86bc8cb0ac5326e6.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-2d0f69d37e1cab95.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-56f42f8043b78974.js","9160","static/chunks/app/not-found-86bc8cb0ac5326e6.js"],""]
+3:T3ca1,> **Current release: [v0.2.0](https://github.com/PastaPastaPasta/dash-forge/releases/tag/v0.2.0)**
 > ([release notes](releases/v0.2.0.md), [changelog](../CHANGELOG.md)), the first published
-> release. You can also [build from source](#build-from-source) from any commit. v0.2.0 predates
-> Forge's mainnet registration, so its binaries work on testnet only; for mainnet, build from source. The version policy is in [VERSIONING.md](VERSIONING.md).
+> release. v0.2.0 predates Forge's mainnet registration, so its binaries work on **testnet
+> only** and have no wallet sign-in (`dg auth login --wallet`). There is no mainnet release yet:
+> **on mainnet, [build from source](#build-from-source)**. The version policy is in [VERSIONING.md](VERSIONING.md).
 
 Every release on [GitHub Releases](https://github.com/PastaPastaPasta/dash-forge/releases)
-ships prebuilt binaries, so you do not need Rust, `protoc`, or the Platform SDK source to use
-Dash Forge. Each archive contains:
+ships prebuilt binaries, so on the networks a release knows you do not need Rust, `protoc`, or
+the Platform SDK source. Each archive contains:
 
 | File | What it is |
 |---|---|
@@ -24,6 +25,7 @@ Dash Forge. Each archive contains:
 | `LICENSE-MIT`, `LICENSE-APACHE` | Dash Forge's own licenses: use either one |
 | `THIRD-PARTY-LICENSES` | the licenses of the open-source Rust crates built into the binaries |
 | `licenses/` | the licenses of OpenSSL (Linux archives) and of musl libc (the musl archive), which are built into those binaries |
+| `README.md`, `INSTALL.md` | the project README and this page |
 
 ## Supported platforms
 
@@ -43,7 +45,9 @@ There is no static build for aarch64 Linux yet. On an aarch64 system with glibc 
 
 ### Windows
 
-Use [WSL](https://learn.microsoft.com/windows/wsl/install) and the Linux build.
+Use [WSL](https://learn.microsoft.com/windows/wsl/install) and the Linux build. Each release
+also carries an `x86_64-pc-windows-msvc` zip, but it has not been tested, and the install
+script refuses Windows.
 
 ## Install script (Linux and macOS)
 
@@ -93,9 +97,11 @@ curl -fsSL https://raw.githubusercontent.com/PastaPastaPasta/dash-forge/master/i
 Then check the install:
 
 ```sh
-dg --version      # dg 0.2.0 (<commit> <target>)
+dg --version      # dg 0.2.0 (<commit> <target>), then the Forge contracts built in, per network
 dg doctor         # git, git-remote-dash (same version as dg), network, identity
 ```
+
+`dg --version` from v0.2.0 lists mainnet as `not deployed`: that build cannot use mainnet.
 
 ## Manual download and verification
 
@@ -192,8 +198,16 @@ Your configuration and identities in `~/.config/dash-forge` are left untouched.
 
 ## Build from source
 
-This works from any commit and needs no release. You need Rust (the version is pinned by
-`rust-toolchain.toml`) and `protoc` 25 or newer; [BUILDING.md](BUILDING.md) has the details.
+This works from any commit and needs no release. It is the way to use **mainnet** from the
+terminal until a release after v0.2.0. You need:
+
+- Rust through [rustup](https://rustup.rs) (the first cargo command installs the toolchain
+  pinned by `rust-toolchain.toml`);
+- `protoc` 25 or newer. Distribution packages are often older (Ubuntu's is 3.21 and fails), so
+  install a release from GitHub as [BUILDING.md](BUILDING.md#prerequisites) shows;
+- on Linux, a C compiler, `pkg-config` and the OpenSSL headers. On Debian or Ubuntu:
+  `sudo apt-get install build-essential pkg-config libssl-dev`, plus `curl unzip git ca-certificates`
+  on a minimal system.
 
 ```sh
 git clone https://github.com/PastaPastaPasta/dash-forge && cd dash-forge
@@ -201,7 +215,11 @@ cargo install --locked --path crates/dg
 cargo install --locked --path crates/git-remote-dash
 ```
 
-`cargo install` puts both binaries in `~/.cargo/bin`.
+`cargo install` puts both binaries in `~/.cargo/bin`; make sure it is on your `PATH`, ahead of
+any older `dg` in `~/.local/bin`. A source build reports the version in `Cargo.toml`, so a build
+from master also says `dg 0.2.0`; `dg --version` tells them apart by listing mainnet's contract
+group. Then sign in on mainnet with `dg auth login --network mainnet --wallet`, which records
+mainnet as the default for `dg` and `git`.
 
 ## For maintainers: cutting a release
 
@@ -209,7 +227,7 @@ cargo install --locked --path crates/git-remote-dash
    that change to `master`. That PR runs the release pipeline as a dry run, because it
    touches `Cargo.toml`. Make sure all six targets are green.
 2. Tag the merge commit `v<version>` and push the tag. `release.yml` then does the rest:
-   it builds all six targets from scratch (no build cache), runs `install.sh` against the
+   it builds all six targets (the five above and the Windows zip) from scratch (no build cache), runs `install.sh` against the
    built archives, writes `SHA256SUMS`, attests the files, and publishes the release with
    generated notes: the install and verify commands, the web app's CID, a "Networks" block
    (the contract groups the binaries embed, read from `forge-contracts/deployments/` at the tag,
@@ -390,6 +408,6 @@ but the tag itself and the `release` environment are protected in the repository
   if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
   if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
   return null;
-};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","org","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["87a0d5558276497aa05110bd4d68c21744bf18b5",[[["",{"children":["docs",{"children":[["slug","install","d"],{"children":["__PAGE__?{\"slug\":\"install\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","install","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"install","title":"Installing Dash Forge","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/435131af2a70def1.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This page doesn't exist. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","div",null,{"className":"mt-5 flex flex-wrap items-center justify-center gap-2.5","children":[["$","$Lc",null,{"href":"/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap bg-forge-700 text-white hover:bg-forge-800 dark:bg-forge-700 dark:hover:bg-forge-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Go home"}],["$","$Lc",null,{"href":"/explore/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap border border-anvil-300 bg-transparent text-anvil-800 hover:bg-anvil-100 dark:border-anvil-700 dark:text-anvil-100 dark:hover:bg-anvil-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Explore repos"}]]}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","org","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["d520d481c4ac4be7dc4cc9c968f262247a29a4ea",[[["",{"children":["docs",{"children":[["slug","install","d"],{"children":["__PAGE__?{\"slug\":\"install\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","install","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"install","title":"Installing Dash Forge","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/435131af2a70def1.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This page doesn't exist. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","div",null,{"className":"mt-5 flex flex-wrap items-center justify-center gap-2.5","children":[["$","$Lc",null,{"href":"/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap bg-forge-700 text-white hover:bg-forge-800 dark:bg-forge-700 dark:hover:bg-forge-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Go home"}],["$","$Lc",null,{"href":"/explore/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap border border-anvil-300 bg-transparent text-anvil-800 hover:bg-anvil-100 dark:border-anvil-700 dark:text-anvil-100 dark:hover:bg-anvil-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Explore repos"}]]}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
 d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
 1:null
