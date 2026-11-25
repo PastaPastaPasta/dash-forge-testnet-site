@@ -1,0 +1,204 @@
+2:I[215158817,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-e2307b2f220e3ade.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-e061b63d44bc5f4d.js","6936","static/chunks/6936-bc34db1b91d47914.js","6893","static/chunks/6893-2650ad2f61bfdfd2.js","121","static/chunks/app/docs/%5Bslug%5D/page-e68ff5d90b8fdeb8.js"],"DocsView"]
+4:I[827716125,[],""]
+6:I[463262791,[],""]
+8:I[86220773,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","5972","static/chunks/5972-57f73931115cc806.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-e2307b2f220e3ade.js","1183","static/chunks/1183-052e7eb3a18d8a3e.js","8180","static/chunks/8180-14b26b5721b8a019.js","3185","static/chunks/app/layout-ad5dddcac29ff43f.js"],"Providers"]
+9:I[707010982,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","6998","static/chunks/6998-1b0acbbb998b723b.js","9675","static/chunks/9675-d91e997938d83168.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","7601","static/chunks/app/error-f5e3a347e59bf6fd.js"],"default"]
+b:I[78629786,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-e2307b2f220e3ade.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-e061b63d44bc5f4d.js","9160","static/chunks/app/not-found-86bc8cb0ac5326e6.js"],"AppShell"]
+c:I[732718185,["7834","static/chunks/7834-a8f5918f4e436d49.js","576","static/chunks/576-15e1985dd9aff537.js","1047","static/chunks/1047-69163f4da88cac9b.js","6998","static/chunks/6998-1b0acbbb998b723b.js","70","static/chunks/70-f04e841df66c97d8.js","2391","static/chunks/2391-70f845042de00ea1.js","9675","static/chunks/9675-d91e997938d83168.js","9881","static/chunks/9881-e2307b2f220e3ade.js","4062","static/chunks/4062-b8e82eeb63890a3b.js","3089","static/chunks/3089-30654cca4a98a831.js","9786","static/chunks/9786-e061b63d44bc5f4d.js","9160","static/chunks/app/not-found-86bc8cb0ac5326e6.js"],""]
+3:T1c23,Rotate a storage credential when someone may have seen it:
+
+- **A maintainer you shared a repository's storage with** (testnet only). When you share a repository's storage with its maintainers (`dg storage share <owner/repo> <profile>`, or the repo's **Settings → Storage**; see [Collaborating](collaborating.md#storage-for-maintainers-testnet)), each maintainer's client decrypts the storage profiles you set for that repository, credentials included, so their pushes can write packs to your bucket or IPFS node. Removing a maintainer stops them reading anything shared **after** the removal: Forge moves the share to a new key and deletes their grant. It cannot take back what they already decrypted.
+- **Your settings-sync key** (testnet only), if a site may have tricked you into approving a wallet code: whoever holds it can read every storage credential synced with your identity ([Identity and keys](identity-and-keys.md#settings-that-follow-your-identity-testnet)).
+
+Sharing and settings sync use the forge-user contract, which is registered on testnet only. On mainnet, Forge neither shares nor syncs storage credentials.
+
+Rotating takes four steps, in this order, so nobody is left holding a key that no longer works:
+
+1. Make a new credential at the provider, next to the old one.
+2. Update the profile with it, then run `dg storage test <name>`.
+3. Refresh each share that uses the profile (testnet): `dg storage share <owner/repo> <the same profiles>` (with the same `--copies`, if you set it), or open (or reload) the repository's **Settings** in the web app. Updating the profile alone does not, and neither does adding a writer.
+4. Revoke the old credential at the provider.
+
+Maintainers only ever get storage set for their repository, never your default storage.
+
+## S3-compatible storage
+
+1. Make a new key that can read and write the bucket only. On a store you run, with the `g` function and `rc` commands from [Storage on your home NAS](home-nas-storage.md#a-bucket-a-key-for-that-bucket-only-public-reads-and-cors):
+   - **Garage:** `g key create forge-key-2`, then `g bucket allow --read --write forge --key forge-key-2`.
+   - **RustFS:** a new user with the same policy: `rc admin user add nas/ forge-2 <a new long random secret>`, then `rc admin policy attach nas/ forge-rw --user forge-2`.
+   - **A hosted provider:** a new access key limited to the bucket, from its dashboard.
+2. Update the profile:
+   - **dg:** keep the old profile name so repositories that use it don't change. The simplest way is `dg storage add` with no arguments: give the same name, confirm the replace, and answer every question again with the **new access key id** and the new secret. It stores the secret, then syncs the profile.
+     With flags, store the new secret **first**, under a keychain entry you haven't used yet (`nas-2`, next time `nas-3`), because `dg storage add` syncs the profile with whatever secret it finds at that moment. Repeat every setting the profile has (`dg storage list` shows them), changing only the key:
+     ```sh
+     security add-generic-password -s dash-forge -a nas-2 -w     # macOS; on Linux: secret-tool store --label=nas-2 service dash-forge account nas-2
+     dg storage add nas --kind s3 --endpoint <endpoint> --region <region> \
+       --bucket forge --public-url <public URL> \
+       --access-key-id <new key id> --secret-access-key keychain:dash-forge/nas-2
+     ```
+     Add `--session-token` if your provider uses one. A new entry name matters on Linux: overwriting the old entry with `secret-tool` does not replace a secret dg stored itself, so the profile would sync the new key id with the old secret. Changing only the keychain entry or the environment variable also changes this computer, not the synced copy: maintainers keep getting the old key, and `dg storage share` stops with E502.
+   - **Web app:** open **Settings → Storage**, edit the profile, and paste the new keys.
+3. Refresh the shares, as in step 3 at the top.
+4. Delete the old key: `g key delete --yes forge-key` on Garage, remove the old user (`forge`) on RustFS, or delete it in the provider's dashboard.
+
+## A kubo node behind auth
+
+1. Add the new credential to your proxy next to the old one (a second basic-auth user, or a second accepted bearer token), and reload it.
+2. Update the profile's `--api-auth` (the full `Authorization` header value, kept in a new keychain entry or an environment variable).
+3. Refresh the shares, as in step 3 at the top.
+4. Remove the old credential from the proxy and reload it.
+
+## An IPFS pinning service
+
+1. Create a new access token in the service's dashboard.
+2. Update the profile's `--pinning-token` (kept in a new keychain entry or an environment variable).
+3. Refresh the shares, as in step 3 at the top.
+4. Revoke the old token.
+
+## Check
+
+```sh
+dg storage test nas
+```
+
+A green test means the new credential works on this computer. `dg storage list` must not mark the profile "local (synced copy differs)": that means maintainers still get the old key, so run `dg storage add` again as in step 2, then refresh the shares. A push with nothing new to send does not refresh a share.
+
+Before you revoke the old credential, also update every other place that holds it: another computer whose own `storage.toml` has the profile (its local copy wins over the synced one; run `dg storage list` there), and any GitHub Action or mirror secret that uses the same key.
+
+## What happens to existing testnet maintainers
+
+Before repo-specific sharing, a share could carry your default storage. At your next push, a maintainer change (`dg collab add … --role maintainer`, `dg collab remove`), `dg storage share`, or visit to the repo's settings, a repository with no storage of its own set stops sharing: its share moves to an empty one at the next epoch and every maintainer's grant is revoked, exactly as a removal does. dg and the web app say so once. Your maintainers then push to their own storage. To keep sharing, set storage for the repository: `dg storage share <owner/repo> <profile>`, or **Use separate storage for this repo to share it with maintainers** in the repo's **Settings → Storage**. Those maintainers could read the default storage's credentials before, so rotate them as described above if that matters to you.
+
+## What a maintainer trusts
+
+Sharing works both ways. The upload address in a shared profile (the bucket endpoint, the kubo API) is chosen by the owner, and the maintainer's own client connects to it when it pushes. Forge never lets a shared profile record a non-public address on chain from the maintainer's machine, but the maintainer still trusts the owner with where their pushes go.
+
+## What rotation does not cover
+
+- **Objects already uploaded.** A removed maintainer could have copied the bucket's contents while they had access. Packs of public repositories are public anyway. Private repositories' packs are encrypted to their members key, which `dg collab remove` rotates separately.
+- **Old document versions.** A removed maintainer can still decrypt shares from before the removal, if they or a Platform node kept them. That is why you rotate: the credentials inside those shares stop working.
+5:["slug","rotate-storage-credentials","d"]
+7:T6c7,(function(){
+  if(location.hash.indexOf('#kubo=')===0&&(location.pathname==="/settings/storage"||location.pathname==="/settings/storage/")){
+    Object.defineProperty(window,'__forgeKuboPair',{value:location.hash,configurable:true});
+    history.replaceState(null,'',location.pathname+location.search);
+  }
+  var KEY="__forgePrehydration";
+  if (window[KEY]) return;
+  var busy = null, prior = null;
+  function clearBusy(){
+    if (!busy) return;
+    if (prior === null) busy.removeAttribute('aria-busy'); else busy.setAttribute('aria-busy', prior);
+    busy.removeAttribute('data-prehydrate-pending');
+    busy = null; prior = null;
+  }
+  var state = { intent: null, at: 0, stop: function(){} };
+  function onClick(e){
+    var t = e.target;
+    var b = t && t.closest ? t.closest('button[data-replay]') : null;
+    if (!b || b.disabled) return;
+    e.preventDefault();
+    e.stopPropagation();
+    clearBusy();
+    state.intent = b.getAttribute('data-replay');
+    state.at = Date.now();
+    busy = b; prior = b.getAttribute('aria-busy');
+    b.setAttribute('aria-busy','true');
+    b.setAttribute('data-prehydrate-pending','');
+  }
+  function onError(e){
+    var t = e.target;
+    if (!t || t.tagName !== 'SCRIPT') return;
+    var src = t.src || '';
+    if (src.indexOf(location.origin + '/') === 0 && /\/_next\/static\//.test(src)) state.stop();
+  }
+  var timer = setTimeout(function(){ state.stop(); }, 12000);
+  document.addEventListener('click', onClick, true);
+  window.addEventListener('error', onError, true);
+  state.stop = function(){
+    clearTimeout(timer);
+    document.removeEventListener('click', onClick, true);
+    window.removeEventListener('error', onError, true);
+    clearBusy();
+  };
+  window[KEY] = state;
+})();a:T162e,(function(){var expand=function (pathname, base, reserved) {
+  var p = pathname;
+  if (base) {
+    if (p !== base && p.indexOf(base + '/') !== 0) return null;
+    p = p.slice(base.length);
+  }
+  var parts = p.split('/').filter(function (s) { return s !== ''; });
+  if (parts.length < 2) return null;
+  var dec = function (s) { try { return decodeURIComponent(s); } catch (e) { return null; } };
+  var owner = dec(parts[0]), name = dec(parts[1]);
+  if (owner === null || name === null) return null;
+  // `/github.com/<owner>/<repo>[/<rest>]` (or `/gh/…`): the page that finds that repo's Forge mirror.
+  var host = owner.toLowerCase();
+  if ((host === 'github.com' || host === 'gh') && parts.length >= 3) {
+    var ghRepo = dec(parts[2]);
+    if (ghRepo === null || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(ghRepo)) return null;
+    var ghRest = parts.slice(3).join('/');
+    return base + '/github.com/?owner=' + encodeURIComponent(name) + '&name=' + encodeURIComponent(ghRepo.replace(/\.git$/i, '')) + (ghRest ? '&rest=' + encodeURIComponent(ghRest) : '');
+  }
+  // A pasted clone URL ends in `.git`. No repo name does (the contract's `nameNotDotGit`), so one
+  // trailing `.git` is the clone form of the name, not part of it.
+  if (name.length > 4 && /\.git$/i.test(name)) name = name.slice(0, -4);
+  if (reserved.indexOf(owner.toLowerCase()) >= 0) return null;
+  if (!/^[A-Za-z0-9][A-Za-z0-9.-]*$/.test(owner) || !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(name)) return null;
+  var q = function (route, extra) {
+    var s = 'owner=' + encodeURIComponent(owner) + '&name=' + encodeURIComponent(name);
+    for (var i = 0; i < extra.length; i += 2) {
+      if (extra[i + 1] !== '') s += '&' + extra[i] + '=' + encodeURIComponent(extra[i + 1]);
+    }
+    return base + route + '?' + s;
+  };
+  var rest = parts.slice(2);
+  var kind = rest[0], arg = rest.length > 1 ? dec(rest[1]) : '';
+  if (arg === null) return null;
+  var tail = [];
+  for (var i = 2; i < rest.length; i++) { var d = dec(rest[i]); if (d === null) return null; tail.push(d); }
+  var number = /^[1-9][0-9]{0,9}$/.test(arg) ? arg : null;
+  if (rest.length === 0) return q('/repo/', []);
+  if (kind === 'releases' && arg === 'tag' && tail.length === 1) return q('/repo/release/', ['tag', tail[0]]);
+  // HEAD (the default branch in a GitHub URL) is the default ref: no ref param.
+  var ref = arg === 'HEAD' ? '' : arg;
+  if ((kind === 'tree' || kind === 'blob' || kind === 'blame') && rest.length >= 2) {
+    return q('/repo/' + kind + '/', ['ref', ref, 'path', tail.join('/')]);
+  }
+  if (kind === 'commits' && tail.length > 0) return q('/repo/commits/', ['ref', ref, 'path', tail.join('/')]);
+  // GitHub's compare: `<base>...<head>` (or `..`), or `<head>` against the default branch. A ref
+  // may hold `/` unencoded here (`compare/main...feature/x`), so the rest of the path is the spec.
+  if (kind === 'compare' && rest.length >= 2) {
+    var spec = [arg].concat(tail).join('/');
+    var dots = spec.indexOf('...'), two = spec.indexOf('..');
+    var cut = dots >= 0 ? dots : two, len = dots >= 0 ? 3 : 2;
+    var cmpBase = cut >= 0 ? spec.slice(0, cut) : '', cmpHead = cut >= 0 ? spec.slice(cut + len) : spec;
+    if (cmpHead === '' || (cut >= 0 && cmpBase === '')) return null;
+    return q('/repo/compare/', ['base', cmpBase, 'head', cmpHead]);
+  }
+  if ((kind === 'pull' || kind === 'pulls') && number && tail.length === 1 && /^(files|commits|checks)$/.test(tail[0])) {
+    return q('/repo/pull/', ['number', number, 'tab', tail[0]]);
+  }
+  // GitHub's policy page, `/security/policy`.
+  if (kind === 'security' && arg === 'policy' && rest.length === 2) return q('/repo/security/', []);
+  if (tail.length > 0) return null;
+  if (kind === 'commits') return q('/repo/commits/', ['ref', ref]);
+  if (kind === 'issues' && rest.length === 1) return q('/repo/issues/', []);
+  if (kind === 'issues' && arg === 'new') return q('/repo/issues/', ['new', '1']);
+  if (kind === 'issues' && number) return q('/repo/issue/', ['number', number]);
+  if (kind === 'pulls' && rest.length === 1) return q('/repo/pulls/', []);
+  if ((kind === 'pull' || kind === 'pulls') && number) return q('/repo/pull/', ['number', number]);
+  if (kind === 'releases' && rest.length === 1) return q('/repo/releases/', []);
+  // GitHub's `/<owner>/<repo>/settings`: a short form of its own is not made (no short URL is
+  // shown for Settings), but the address people try opens the page.
+  if (kind === 'settings' && rest.length === 1) return q('/repo/settings/', []);
+  if (kind === 'boards' && rest.length === 1) return q('/repo/boards/', []);
+  if (kind === 'boards' && number && rest.length === 2) return q('/repo/board/', ['b', number]);
+  if (kind === 'releases') return q('/repo/release/', ['tag', arg]);
+  if ((kind === 'branches' || kind === 'tags' || kind === 'stargazers' || kind === 'compare' || kind === 'labels' || kind === 'milestones' || kind === 'security') && rest.length === 1) return q('/repo/' + kind + '/', []);
+  if (kind === 'commit' && /^[0-9a-fA-F]{4,40}$/.test(arg)) return q('/repo/commit/', ['oid', arg.toLowerCase()]);
+  return null;
+};var to=expand(location.pathname,"",[".well-known","_next","404","api","connect","docs","explore","favicon.ico","gh","github.com","icons","index","ipfs","ipns","licenses","login","manifest.webmanifest","mirror","networks","new","notifications","notify-sw.js","og.png","org","private","repo","robots.txt","settings","start","third-party-licenses.txt","u","wasm-sdk-licenses.txt"]);if(to){document.documentElement.setAttribute('data-short-url','1');location.replace(to+(location.search?'&'+location.search.slice(1):'')+location.hash);}})();0:["203aa363485d6a5fe3293c1565458ed682cd723b",[[["",{"children":["docs",{"children":[["slug","rotate-storage-credentials","d"],{"children":["__PAGE__?{\"slug\":\"rotate-storage-credentials\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["docs",{"children":[["slug","rotate-storage-credentials","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"slug":"rotate-storage-credentials","title":"Rotate storage credentials","body":"$3"}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","docs","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/435131af2a70def1.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","meta",null,{"httpEquiv":"Content-Security-Policy","content":"default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self'; connect-src 'self' https: wss: http://127.0.0.1:* http://localhost:*; worker-src 'self' blob:; child-src 'self' blob:; base-uri 'self'"}],["$","link",null,{"rel":"manifest","href":"/manifest.webmanifest"}],["$","link",null,{"rel":"apple-touch-icon","href":"/icons/apple-touch-icon.png"}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$7"}}]]}],["$","body",null,{"children":[["$","$L8",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$9","errorStyles":[],"errorScripts":[],"template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"$a"}}],["$","$Lb",null,{"children":["$","div",null,{"data-testid":"not-found","className":"mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center text-center","children":[["$","h1",null,{"className":"text-xl","children":"Nothing here"}],["$","p",null,{"className":"mt-2 text-dense text-anvil-600 dark:text-anvil-300","children":["This page doesn't exist. Repo links look like ",["$","span",null,{"className":"font-mono","children":"/owner/name"}],"."]}],["$","div",null,{"className":"mt-5 flex flex-wrap items-center justify-center gap-2.5","children":[["$","$Lc",null,{"href":"/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap bg-forge-700 text-white hover:bg-forge-800 dark:bg-forge-700 dark:hover:bg-forge-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Go home"}],["$","$Lc",null,{"href":"/explore/","className":"inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:pointer-events-none disabled:opacity-50 whitespace-nowrap border border-anvil-300 bg-transparent text-anvil-800 hover:bg-anvil-100 dark:border-anvil-700 dark:text-anvil-100 dark:hover:bg-anvil-800 h-9 px-3.5 text-dense coarse:h-auto coarse:min-h-11 coarse:min-w-11","children":"Explore repos"}]]}]]}]}]],"notFoundStyles":[]}]}],null]}]]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"name":"theme-color","media":"(prefers-color-scheme: light)","content":"#fafaf9"}],["$","meta","2",{"name":"theme-color","media":"(prefers-color-scheme: dark)","content":"#0f0d0c"}],["$","meta","3",{"charSet":"utf-8"}],["$","title","4",{"children":"Dash Forge"}],["$","meta","5",{"name":"description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","6",{"name":"application-name","content":"Dash Forge"}],["$","meta","7",{"property":"og:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","8",{"property":"og:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","9",{"property":"og:site_name","content":"Dash Forge"}],["$","meta","10",{"property":"og:image","content":"https://testnet-forge.dashhq.org/og.png"}],["$","meta","11",{"property":"og:image:width","content":"1200"}],["$","meta","12",{"property":"og:image:height","content":"630"}],["$","meta","13",{"property":"og:image:alt","content":"Dash Forge: a git forge with no server to trust."}],["$","meta","14",{"property":"og:type","content":"website"}],["$","meta","15",{"name":"twitter:card","content":"summary_large_image"}],["$","meta","16",{"name":"twitter:title","content":"Dash Forge: a git forge with no server to trust"}],["$","meta","17",{"name":"twitter:description","content":"Git hosting with no server, on Dash Platform. Your browser verifies every branch and file it shows."}],["$","meta","18",{"name":"twitter:image","content":"https://testnet-forge.dashhq.org/og.png"}]]
+1:null
