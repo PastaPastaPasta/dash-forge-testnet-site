@@ -386,8 +386,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 
-@dashevo/evo-sdk 5.0.0-rc.8 (MIT)
-https://github.com/dashpay/platform/blob/v5.0.0-rc.8/LICENSE.md
+@dashevo/evo-sdk 5.1.0-rc.2 (MIT)
+https://github.com/dashpay/platform/blob/v5.1.0-rc.2/LICENSE.md
 
 The MIT License (MIT)
 
@@ -412,8 +412,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 --------------------------------------------------------------------------------
 
-@dashevo/wasm-sdk 5.0.0-rc.8 (MIT)
-https://github.com/dashpay/platform/blob/v5.0.0-rc.8/LICENSE.md
+@dashevo/wasm-sdk 5.1.0-rc.2 (MIT)
+https://github.com/dashpay/platform/blob/v5.1.0-rc.2/LICENSE.md
 
 The MIT License (MIT)
 
